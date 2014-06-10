@@ -32,7 +32,7 @@ public:
 					printf("error loading renderer");
 					return false;
 				}
-				SDL_SetRenderDrawColor( renderer, 0xFF, 0xFF, 0xFF, 0xFF );
+				SDL_SetRenderDrawColor( renderer, 0x00, 0xFF, 0xFF, 0xFF );
 
 				int imgFlags = IMG_INIT_PNG;
 				if( !( IMG_Init(imgFlags)&imgFlags))

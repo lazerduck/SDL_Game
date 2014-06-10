@@ -75,6 +75,8 @@
     <ClInclude Include="ImgLoader.h" />
     <ClInclude Include="Initialisation.h" />
     <ClInclude Include="IOcontrol.h" />
+    <ClInclude Include="Map.h" />
+    <ClInclude Include="Player.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

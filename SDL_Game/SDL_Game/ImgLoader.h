@@ -70,5 +70,32 @@ public:
 		}
 		return tex;
 	}
+	Map* initMap(Map* map, string path,vector<SDL_Texture*>tiles)
+	{
+		ifstream ReadFile;
+		ReadFile.open(path.c_str());
+		int x;
+		int y;
+		int* data;
+		if(ReadFile.is_open())
+		{
+			ReadFile>>x;
+			ReadFile>>y;
+			data = new int[x*y];
+			int count  = 0;
+			while(!ReadFile.eof())
+			{
+				ReadFile>>*(data+count);
+				printf("%d",*(data+count));
+				count++;
+				if(count%x == 0)
+				{
+					printf("\n");
+				}
+			}
+		}
+		map = new Map(y,x,data,tiles);
+		return map;
+	}
 };
 
