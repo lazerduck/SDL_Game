@@ -34,6 +34,8 @@ int OldMouse = 0;
 //player
 int playerX = 100;
 int playerY = 100;
+//keys
+bool Up,Down,Left,Right;
 
 //classes
 #include "Map.h"
@@ -72,6 +74,8 @@ SDL_Rect pos;
 
 Map* map1;
 vector<SDL_Texture*> tiles;
+
+Player* player;
 
 int main( int argc, char* args[] )
 {
@@ -163,6 +167,9 @@ void Initialise()
 	tiles.push_back(tile1);
 	tiles.push_back(tile2);
 	map1 = loader.initMap(map1,"maps/map1.txt",tiles);
+
+	player = new Player(80,80,loader.loadTexturePNG("sprites/player.png"));
+
 }
 
 void Update()
@@ -194,7 +201,7 @@ void Update()
 	}
 	if(state == Game)
 	{
-
+		player->Update(map1);
 	}
 }
 
@@ -211,6 +218,7 @@ void Draw()
 	}
 	if(state == Game)
 	{
+		player->Draw();
 		map1->Draw();
 	}
 }

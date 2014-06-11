@@ -29,6 +29,54 @@ public:
 			{
 				return true;
 			}
+			if(e->type == SDL_KEYDOWN)
+			{
+				if(e->key.keysym.sym == SDLK_LEFT)
+				{
+					Left = true;
+				}
+
+				if(e->key.keysym.sym == SDLK_RIGHT)
+				{
+					Right = true;
+				}
+
+
+				if(e->key.keysym.sym == SDLK_UP)
+				{
+					Up = true;
+				}
+
+
+				if(e->key.keysym.sym == SDLK_DOWN)
+				{
+					Down = true;
+				}
+			}
+			if(e->type == SDL_KEYUP)
+			{
+				if(e->key.keysym.sym == SDLK_LEFT)
+				{
+					Left = false;
+				}
+
+				if(e->key.keysym.sym == SDLK_RIGHT)
+				{
+					Right = false;
+				}
+
+
+				if(e->key.keysym.sym == SDLK_UP)
+				{
+					Up = false;
+				}
+
+
+				if(e->key.keysym.sym == SDLK_DOWN)
+				{
+					Down = false;
+				}
+			}
 		}
 		return false;
 	}
