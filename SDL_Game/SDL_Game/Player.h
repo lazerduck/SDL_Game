@@ -22,8 +22,8 @@ public:
 		x = startX;
 		y = startY;
 		Sprite = sprite;
-		playerX = SCREEN_WIDTH/2-(int)x;
-		playerY = SCREEN_HEIGHT/2-(int)y;
+		playerX = MIDX-(int)x;
+		playerY = MIDY-(int)y;
 		dst.x = playerX+x;
 		dst.y = playerY+y;
 		dst.h = 53;
@@ -33,7 +33,7 @@ public:
 	}
 	void Update(Map* map)
 	{
-		int ypos = y+52;
+		float ypos = y+52;
 		float xpos = 0;
 		int val = 0;
 		if(Left)
@@ -47,7 +47,12 @@ public:
 				val = map->GetValue(xpos/40,ypos/40);
 				if(val != 1)
 				{
-					x = xpos;
+					ypos = y+27;
+					val = map->GetValue(xpos/40,ypos/40);
+					if(val != 1)
+					{
+						x = xpos;
+					}
 				}
 			}
 		}
@@ -62,7 +67,12 @@ public:
 				val = map->GetValue((xpos+19)/40,ypos/40);
 				if(val != 1)
 				{
-					x = xpos;
+					ypos = y+27;
+					val = map->GetValue((xpos+19)/40,ypos/40);
+					if(val != 1)
+					{
+						x = xpos;
+					}
 				}
 			}
 		}
@@ -75,10 +85,8 @@ public:
 				y-=0.01;
 			}
 		}
-		playerX = SCREEN_WIDTH/2-(int)x;
+		playerX = MIDX-(int)x;
 		
-
-		//dst.x = playerX;
 		ypos = y+53;
 		xpos = x;
 		val = map->GetValue(xpos/40,ypos/40);
@@ -98,6 +106,25 @@ public:
 
 		if(!grounded)
 		{
+			ypos = y-1;
+			xpos = x;
+			val = map->GetValue(xpos/40,ypos/40);
+			if(fallSpeed<0)
+			{
+				if(val == 1)
+				{
+					fallSpeed = 0;
+				}
+				else
+				{
+					xpos = x+19;
+					val = map->GetValue(xpos/40,ypos/40);
+					if(val == 1)
+					{
+						fallSpeed = 0;
+					}
+				}
+			}
 			if(fallSpeed<0.5)
 			{
 				fallSpeed+= 0.001*DeltaTime;
@@ -108,7 +135,7 @@ public:
 		{
 			fallSpeed = 0;
 		}
-		playerY = SCREEN_HEIGHT/2-(int)y;
+		playerY = MIDY-(int)y;
 	}
 	void Draw()
 	{

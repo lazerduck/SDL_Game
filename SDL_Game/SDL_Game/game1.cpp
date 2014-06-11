@@ -11,6 +11,9 @@ using namespace std;
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 
+int MIDX = 640;
+int MIDY = 360;
+
 enum State {Splash,MainMenu,Game};
 State state;
 
@@ -201,6 +204,7 @@ void Update()
 	}
 	if(state == Game)
 	{
+		
 		player->Update(map1);
 	}
 }
@@ -217,7 +221,7 @@ void Draw()
 		quitBtn->Draw();
 	}
 	if(state == Game)
-	{
+	{		
 		player->Draw();
 		map1->Draw();
 	}
