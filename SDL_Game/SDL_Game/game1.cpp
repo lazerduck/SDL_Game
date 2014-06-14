@@ -39,6 +39,9 @@ int playerX = 100;
 int playerY = 100;
 //keys
 bool Up,Down,Left,Right;
+//camera
+#include "Camera.h"
+Camera camera;
 
 //classes
 #include "Map.h"
@@ -86,7 +89,7 @@ int main( int argc, char* args[] )
 	//initialiser
 	Initialisation init;
 	
-
+	
 	success = init.start();
 
 
@@ -171,7 +174,7 @@ void Initialise()
 	tiles.push_back(tile2);
 	map1 = loader.initMap(map1,"maps/map1.txt",tiles);
 
-	player = new Player(80,80,loader.loadTexturePNG("sprites/player.png"));
+	player = new Player(80,80,loader.loadTexturePNG("sprites/ashen1.png"));
 
 }
 

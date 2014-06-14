@@ -24,118 +24,64 @@ public:
 		Sprite = sprite;
 		playerX = MIDX-(int)x;
 		playerY = MIDY-(int)y;
-		dst.x = playerX+x;
-		dst.y = playerY+y;
-		dst.h = 53;
-		dst.w = 19;
+		SDL_QueryTexture(sprite,NULL,NULL,&dst.w,&dst.h);
+		dst.x = startX;
+		dst.y = startY;
+		x = startX;
+		y = startY;
 		grounded = false;
-
 	}
 	void Update(Map* map)
 	{
-		float ypos = y+52;
-		float xpos = 0;
-		int val = 0;
-		if(Left)
-		{
-			 
-			xpos = x-speed*DeltaTime;
-			val = map->GetValue(xpos/40,ypos/40);
-			if(val != 1)
-			{
-				ypos = y;
-				val = map->GetValue(xpos/40,ypos/40);
-				if(val != 1)
-				{
-					ypos = y+27;
-					val = map->GetValue(xpos/40,ypos/40);
-					if(val != 1)
-					{
-						x = xpos;
-					}
-				}
-			}
-		}
-
+		//left and right
 		if(Right)
 		{
-			xpos = x+speed*DeltaTime;
-			val = map->GetValue((xpos+19)/40,ypos/40);
-			if(val != 1)
+			if(map->GetValue((dst.x+dst.w)/40,dst.y/40) ==0)
 			{
-				ypos = y;
-				val = map->GetValue((xpos+19)/40,ypos/40);
-				if(val != 1)
+				if(map->GetValue((dst.x+dst.w)/40,(dst.y+dst.h/2)/40) ==0)
 				{
-					ypos = y+27;
-					val = map->GetValue((xpos+19)/40,ypos/40);
-					if(val != 1)
+					if(map->GetValue((dst.x+dst.w)/40,(dst.y+dst.h)/40) ==0)
 					{
-						x = xpos;
+						x += speed*DeltaTime;
 					}
 				}
 			}
-		}
-		if(Up)
-		{
-			if(grounded)
-			{
-				fallSpeed = -0.5;
-				grounded = false;
-				y-=0.01;
-			}
-		}
-		playerX = MIDX-(int)x;
-		
-		ypos = y+53;
-		xpos = x;
-		val = map->GetValue(xpos/40,ypos/40);
-		if(val!=1)
-		{
-			xpos = x+19;
-			val = map->GetValue(xpos/40,ypos/40);
-		}
-		if(val== 1)
-		{
-			grounded = true;
-		}
-		else
-		{
-			grounded = false;
+
 		}
 
-		if(!grounded)
+		if(Left)
 		{
-			ypos = y-1;
-			xpos = x;
-			val = map->GetValue(xpos/40,ypos/40);
-			if(fallSpeed<0)
+			if(map->GetValue(dst.x/40,dst.y/40) ==0)
 			{
-				if(val == 1)
+				if(map->GetValue(dst.x/40,(dst.y+dst.h/2)/40) ==0)
 				{
-					fallSpeed = 0;
-				}
-				else
-				{
-					xpos = x+19;
-					val = map->GetValue(xpos/40,ypos/40);
-					if(val == 1)
+					if(map->GetValue(dst.x/40,(dst.y+dst.h)/40) ==0)
 					{
-						fallSpeed = 0;
+						x -= speed*DeltaTime;
 					}
 				}
 			}
-			if(fallSpeed<0.5)
+
+		}
+		//up and down
+		if(map->GetValue((dst.x+1)/40,(dst.y+dst.h+1)/40) == 1 || map->GetValue((dst.x+dst.w-1)/40,(dst.y+dst.h+1)/40) == 1)
+		{
+			fallSpeed = 0;
+			if(Up)
 			{
-				fallSpeed+= 0.001*DeltaTime;
+				fallSpeed = -0.2;
 			}
-			y+= fallSpeed*DeltaTime;
 		}
 		else
 		{
-			fallSpeed = 0;
+			if(fallSpeed < 0.2)
+			{
+				fallSpeed += 0.001*DeltaTime;
+			}	
 		}
-		playerY = MIDY-(int)y;
+		y+=fallSpeed;
+		dst.x = x - camera.x;
+		dst.y = y - camera.y;
 	}
 	void Draw()
 	{

@@ -70,6 +70,7 @@
     <ClCompile Include="game1.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="gButton.h" />
     <ClInclude Include="gTimer.h" />
     <ClInclude Include="ImgLoader.h" />
