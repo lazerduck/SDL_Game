@@ -31,50 +31,58 @@ public:
 			}
 			if(e->type == SDL_KEYDOWN)
 			{
-				if(e->key.keysym.sym == SDLK_LEFT)
+				if(e->key.keysym.sym == SDLK_LEFT||e->key.keysym.sym == SDLK_a )
 				{
 					Left = true;
 				}
 
-				if(e->key.keysym.sym == SDLK_RIGHT)
+				if(e->key.keysym.sym == SDLK_RIGHT||e->key.keysym.sym == SDLK_d)
 				{
 					Right = true;
 				}
 
 
-				if(e->key.keysym.sym == SDLK_UP)
+				if(e->key.keysym.sym == SDLK_UP||e->key.keysym.sym == SDLK_w)
 				{
 					Up = true;
 				}
 
 
-				if(e->key.keysym.sym == SDLK_DOWN)
+				if(e->key.keysym.sym == SDLK_DOWN||e->key.keysym.sym == SDLK_s)
 				{
 					Down = true;
+				}
+				if(e->key.keysym.sym == SDLK_SPACE)
+				{
+					Space = true;
 				}
 			}
 			if(e->type == SDL_KEYUP)
 			{
-				if(e->key.keysym.sym == SDLK_LEFT)
+				if(e->key.keysym.sym == SDLK_LEFT||e->key.keysym.sym == SDLK_a)
 				{
 					Left = false;
 				}
 
-				if(e->key.keysym.sym == SDLK_RIGHT)
+				if(e->key.keysym.sym == SDLK_RIGHT||e->key.keysym.sym == SDLK_d)
 				{
 					Right = false;
 				}
 
 
-				if(e->key.keysym.sym == SDLK_UP)
+				if(e->key.keysym.sym == SDLK_UP||e->key.keysym.sym == SDLK_w)
 				{
 					Up = false;
 				}
 
 
-				if(e->key.keysym.sym == SDLK_DOWN)
+				if(e->key.keysym.sym == SDLK_DOWN||e->key.keysym.sym == SDLK_s)
 				{
 					Down = false;
+				}
+				if(e->key.keysym.sym == SDLK_SPACE)
+				{
+					Space = false;
 				}
 			}
 		}

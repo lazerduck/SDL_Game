@@ -94,7 +94,9 @@ public:
 				}
 			}
 		}
+		ReadFile.close();
 		map = new Map(y,x,data,tiles);
+		delete []data;
 		return map;
 	}
 };

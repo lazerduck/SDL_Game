@@ -55,19 +55,19 @@ public:
 	bool hit(int x, int y)
 	{
 		bool hit = true;
-		if(x>DrawRect.x + DrawRect.w)
+		if(x>DrawRect.x*scalex + DrawRect.w*scalex)
 		{
 			hit = false;
 		}
-		if(x<DrawRect.x)
+		if(x<DrawRect.x*scalex)
 		{
 			hit = false;
 		}
-		if(y>DrawRect.y + DrawRect.h)
+		if(y>DrawRect.y*scaley + DrawRect.h*scaley)
 		{
 			hit = false;
 		}
-		if(y<DrawRect.y)
+		if(y<DrawRect.y*scaley)
 		{
 			hit = false;
 		}
@@ -97,6 +97,7 @@ public:
 
 	~gButton(void)
 	{
+
 	}
 };
 

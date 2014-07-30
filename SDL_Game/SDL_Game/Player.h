@@ -6,10 +6,12 @@ class Player
 	float speed;
 	float fallSpeed;
 	bool grounded;
-
+	
 	SDL_Rect dst;
 
 	SDL_Texture* Sprite;
+
+	SDL_RendererFlip flip;
 public:
 
 	Player(void)
@@ -18,7 +20,7 @@ public:
 	Player(int startX, int startY, SDL_Texture* sprite)
 	{
 		fallSpeed = 0;
-		speed = 0.2f;
+		speed = 0.4f;
 		x = startX;
 		y = startY;
 		Sprite = sprite;
@@ -30,62 +32,91 @@ public:
 		x = startX;
 		y = startY;
 		grounded = false;
+		flip = SDL_FLIP_NONE;
+	}
+	int getX()
+	{
+		return x;
+	}
+	int getY()
+	{
+		return y;
 	}
 	void Update(Map* map)
 	{
-		//left and right
+		y+=fallSpeed *DeltaTime;
 		if(Right)
 		{
-			if(map->GetValue((dst.x+dst.w)/40,dst.y/40) ==0)
+			x += speed*DeltaTime;
+			if(map->GetValue((x+dst.w+1)/40,(y)/40) ==1|| map->GetValue((x+dst.w+1)/40,(y+dst.h/2)/40) ==1 || map->GetValue((x+dst.w+1)/40,(y+dst.h)/40) ==1&&map->GetValue((x-1)/40,(y+dst.h)/40) !=1)
 			{
-				if(map->GetValue((dst.x+dst.w)/40,(dst.y+dst.h/2)/40) ==0)
-				{
-					if(map->GetValue((dst.x+dst.w)/40,(dst.y+dst.h)/40) ==0)
-					{
-						x += speed*DeltaTime;
-					}
-				}
+				int test = (((int)x+dst.w+1)/40)*40;
+				test -= x+dst.w+1;
+				x += test;
 			}
-
 		}
 
 		if(Left)
 		{
-			if(map->GetValue(dst.x/40,dst.y/40) ==0)
+			x -= speed*DeltaTime;
+			if(map->GetValue((x-1)/40,(y)/40) ==1|| map->GetValue((x-1)/40,(y+dst.h/2)/40) ==1 || map->GetValue((x-1)/40,(y+dst.h)/40) ==1 && map->GetValue((x+dst.w+1)/40,(y+dst.h)/40) !=1)
 			{
-				if(map->GetValue(dst.x/40,(dst.y+dst.h/2)/40) ==0)
-				{
-					if(map->GetValue(dst.x/40,(dst.y+dst.h)/40) ==0)
-					{
-						x -= speed*DeltaTime;
-					}
-				}
+				int test = (((int)x-1)/40)*40 + 40;
+				test -= x-1;
+				x += test;
 			}
-
 		}
 		//up and down
-		if(map->GetValue((dst.x+1)/40,(dst.y+dst.h+1)/40) == 1 || map->GetValue((dst.x+dst.w-1)/40,(dst.y+dst.h+1)/40) == 1)
+
+		if(map->GetValue((x+2)/40,(y+dst.h+2)/40) == 1 || map->GetValue((x+dst.w-2)/40,(y+dst.h+2)/40) == 1)
 		{
+			int test = (((int)y+dst.h+2)/40)*40;
+			test -= y+dst.h+2;
+			y += test;
 			fallSpeed = 0;
 			if(Up)
 			{
-				fallSpeed = -0.2;
+				fallSpeed = -0.7;
+			}
+			dst.y = (dst.y/40)*40 + 1;
+		}
+		else 
+		{
+			if(map->GetValue((x+2)/40,(y-1)/40) == 1 || map->GetValue((x+dst.w-2)/40,(y-1)/40) == 1)
+			{
+				if(fallSpeed <0)
+				{
+				fallSpeed = 0.1;
+				}
+			}else
+			{
+				if(fallSpeed < 1)
+				{
+					fallSpeed += 0.001*DeltaTime;
+				}	
 			}
 		}
-		else
-		{
-			if(fallSpeed < 0.2)
-			{
-				fallSpeed += 0.001*DeltaTime;
-			}	
-		}
-		y+=fallSpeed;
+		
+
+		camera.Update(x,y,map->getRows(),map->getCols());
+
 		dst.x = x - camera.x;
 		dst.y = y - camera.y;
+		if(!Space)
+		{
+			if(Right)
+			{
+				flip = SDL_FLIP_NONE;
+			}
+			if(Left)
+			{
+				flip = SDL_FLIP_HORIZONTAL;
+			}
+		}
 	}
 	void Draw()
 	{
-		SDL_RenderCopy(renderer,Sprite,NULL,&dst);
+		SDL_RenderCopyEx(renderer,Sprite,NULL,&dst,0.0,NULL,flip);
 	}
 
 	~Player(void)

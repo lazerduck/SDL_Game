@@ -1,4 +1,5 @@
 #pragma once
+
 class Map
 {
 private:
@@ -71,6 +72,7 @@ public:
 		DrawRect.y = 0;
 		DrawRect.w = 40;
 		DrawRect.h = 40;
+		
 	}
 
 	void SetData(int* Data)
@@ -116,14 +118,22 @@ public:
 			for(int j = 0; j<columns;j++)
 			{
 				int texnum = data[j+(columns*i)]-1;
-				if(texnum < Tiles.size() && texnum>=0)
+				if(texnum < Tiles.size() && texnum>=0&&texnum !=2)
 				{
-					DrawRect.x = j*40 - camera.x;
-					DrawRect.y = i*40 - camera.y;
+					DrawRect.x = (j*40) - camera.x;
+					DrawRect.y = (i*40) - camera.y;
 					SDL_RenderCopy(renderer,Tiles[texnum],NULL,&DrawRect);
 				}
 			}
 		}
+	}
+	int getRows()
+	{
+		return rows;
+	}
+		int getCols()
+	{
+		return columns;
 	}
 
 	~Map(void)

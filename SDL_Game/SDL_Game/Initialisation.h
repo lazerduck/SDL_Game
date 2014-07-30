@@ -26,7 +26,9 @@ public:
 			}
 			else
 			{
-				renderer = SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED);
+				renderer = SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+				SDL_RenderSetScale(renderer,scalex,scaley);
+
 				if(renderer == NULL)
 				{
 					printf("error loading renderer");
@@ -64,7 +66,10 @@ public:
 	bool DeleteTextures(vector<SDL_Texture*> toCheck)
 	{
 		int num = 0;
-		
+		for(vector<SDL_Texture*>::iterator it = toCheck.begin(); it == toCheck.end();++it)
+		{
+			SDL_DestroyTexture(*it);
+		}
 		return true;
 
 	}
