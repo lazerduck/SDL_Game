@@ -7,6 +7,7 @@ protected:
 	int health;
 	SDL_Texture *texture;
 	SDL_RendererFlip flip;
+	bool hitcheck;
 public:
 
 	Enemy(void)
@@ -22,6 +23,7 @@ public:
 		velx = 0;
 		SDL_QueryTexture(texture, NULL,NULL,&dst.w,&dst.h);
 		flip = SDL_FLIP_NONE;
+		hitcheck = false;
 	}
 
 	virtual void Update(Map *map)
@@ -42,6 +44,8 @@ public:
 		{
 			health -= damage;
 			printf("hit\n");
+			SDL_SetTextureAlphaMod( texture, 0x90 );
+			hitcheck = true;
 			if(health <=0)
 			{
 				return 2;

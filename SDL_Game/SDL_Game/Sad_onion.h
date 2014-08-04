@@ -3,6 +3,7 @@ class Sad_onion:public Enemy
 {
 private:
 	bool checkedge;
+	gTimer hitTimer;
 public:
 
 	Sad_onion(void)
@@ -10,6 +11,7 @@ public:
 	}
 	Sad_onion(SDL_Texture *tex, int X,int Y)
 	{
+		hitcheck = false;
 		x = (X*40);
 		y = (Y*40)-9;
 		dst.x = x;
@@ -21,10 +23,13 @@ public:
 		SDL_QueryTexture(texture, NULL,NULL,&dst.w,&dst.h);
 		flip = SDL_FLIP_NONE;
 		checkedge = false;
+		SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+		
 	}
 
 	void Update(Map *map)
 	{
+		hitTimer.Update(DeltaTime);
 		x += velx*DeltaTime;
 		y += vely*DeltaTime;
 		if(checkedge)
@@ -80,6 +85,17 @@ public:
 		y+=vely *DeltaTime;
 		dst.x =(int) x -camera.x;
 		dst.y = (int)y - camera.y;
+
+		if(hitcheck)
+		{
+			hitTimer.Start();
+			hitcheck = false;
+		}
+		if(hitTimer.Time > 100)
+		{
+			SDL_SetTextureAlphaMod( texture, 0xff );
+			hitTimer.Stop();
+		}
 	}
 
 

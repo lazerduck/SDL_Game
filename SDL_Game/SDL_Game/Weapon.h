@@ -60,7 +60,7 @@ public:
 		timer1.Update(DeltaTime);
 		dst.x = player.getX()- camera.x;
 		dst.y = player.getY()+25-camera.y;
-		if(timer1.Time>100)
+		if(timer1.Time>400)
 		{
 			timer1.Stop();
 		}

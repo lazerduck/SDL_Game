@@ -32,6 +32,7 @@ SDL_Renderer* renderer = NULL;
 //delta time
 float DeltaTime = 0;
 float PrevTicks = 0;
+float slowTime = 1;
 
 //mouse
 int mouseX = 0;
@@ -101,10 +102,28 @@ Player* player;
 
 
 //todo
-//bullett hit effect
+//bullett hit effect -- [Done] - enemies flicker when hit particle effects may still be nessecary
 //enemies
-//sprites -- under way -n better need animating
+//sprites
+//-enemy
+//-weapons
+//-powerups
+//-hud
+//-menu
+//-level blocks
+//-particles
 //levels
+//weapons
+//animation
+//-running
+//-jumping
+//-taking damage
+//-idling
+//hud
+//save?
+//power ups
+//story
+
 
 //bugs
 //left jump + space dont work together as well as being clunky -- [Fixed] - need to use wasd and space to prevent key conflict unique to laptop
@@ -114,8 +133,9 @@ Player* player;
 //buttons dont move with the camera -- [Fixed] - multiplied by scalx/y
 //multiple bullets at a time -- [Fixed] - lowering the frame rate seemed to fix this
 //issue causing left and right corrections to be done before up and down causing stutter then landing -- [Fixed] - check behind when landing in motion
-//wall jumping glitch 
+//wall jumping glitch -- [Fixed] - move first then check for collisions and correct
 //memory leaks -- [Fixed] - remeber to delete objects migh need improving for ease vectors work well
+//dont render off screen tiles or enemies -- [Fixed] - not worth time for enemies, but tiles done
 
 int main( int argc, char* args[] )
 {
@@ -146,7 +166,7 @@ int main( int argc, char* args[] )
 				start = SDL_GetTicks();
 			}
 			//get deltatime
-			DeltaTime = (SDL_GetTicks() - PrevTicks)/1;
+			DeltaTime = (SDL_GetTicks() - PrevTicks)/slowTime;
 			PrevTicks = SDL_GetTicks();
 			
 			 SDL_RenderClear( renderer );

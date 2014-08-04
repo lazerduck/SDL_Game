@@ -117,12 +117,17 @@ public:
 		{
 			for(int j = 0; j<columns;j++)
 			{
-				int texnum = data[j+(columns*i)]-1;
-				if(texnum < Tiles.size() && texnum>=0&&texnum !=2)
+				DrawRect.x = (j*40);
+				DrawRect.y = (i*40);
+				if( DrawRect.x<camera.view.x+camera.view.w && camera.view.y < DrawRect.y+DrawRect.h && camera.view.x < DrawRect.x+DrawRect.w && DrawRect.y < camera.view.y+camera.view.h)
 				{
-					DrawRect.x = (j*40) - camera.x;
-					DrawRect.y = (i*40) - camera.y;
-					SDL_RenderCopy(renderer,Tiles[texnum],NULL,&DrawRect);
+					int texnum = data[j+(columns*i)]-1;
+					if(texnum < Tiles.size() && texnum>=0&&texnum !=2)
+					{
+						DrawRect.x = (j*40) - camera.x;
+						DrawRect.y = (i*40) - camera.y;
+						SDL_RenderCopy(renderer,Tiles[texnum],NULL,&DrawRect);
+					}
 				}
 			}
 		}

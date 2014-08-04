@@ -6,6 +6,7 @@ class Player
 	float speed;
 	float fallSpeed;
 	bool grounded;
+	int health;
 	
 	SDL_Rect dst;
 
@@ -33,6 +34,7 @@ public:
 		y = startY;
 		grounded = false;
 		flip = SDL_FLIP_NONE;
+		health = 100;
 	}
 	int getX()
 	{
