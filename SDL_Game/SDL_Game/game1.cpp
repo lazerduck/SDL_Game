@@ -12,7 +12,7 @@ float scalex = 1.2;
 float scaley = 1.2;
 
 //Screen dimension constants
-const int SCREEN_WIDTH = 640;
+const int SCREEN_WIDTH = 854;
 const int SCREEN_HEIGHT = 480;
 
 int MIDX = 640;
@@ -59,6 +59,8 @@ Camera camera;
 //enemies
 #include "Enemy.h"
 #include "Sad_onion.h"
+//menu
+#include "MenuContain.h"
 
 //enemy holder
 vector<Enemy*> Enemies;
@@ -83,12 +85,7 @@ ImgLoader loader;
 SDL_Texture* texture = NULL;
 vector<SDL_Texture*> TextureVect;
 //varibles main
-SDL_Texture* TestBtn = NULL;
-SDL_Texture* TestoverBtn = NULL;
-SDL_Texture* TestdownBtn = NULL;
-gButton* TestGB = NULL;
-SDL_Texture* quitTex = NULL;
-gButton* quitBtn = NULL;
+
 //io stuff
 bool quit = false;
 SDL_Event e;
@@ -100,6 +97,8 @@ vector<SDL_Texture*> tiles;
 
 Player* player;
 
+MenuContain* Main;
+
 
 //todo
 //bullett hit effect -- [Done] - enemies flicker when hit particle effects may still be nessecary
@@ -109,7 +108,7 @@ Player* player;
 //-weapons
 //-powerups
 //-hud
-//-menu
+//-menu -- [Progress] - buttons and method updated
 //-level blocks
 //-particles
 //levels
@@ -136,6 +135,9 @@ Player* player;
 //wall jumping glitch -- [Fixed] - move first then check for collisions and correct
 //memory leaks -- [Fixed] - remeber to delete objects migh need improving for ease vectors work well
 //dont render off screen tiles or enemies -- [Fixed] - not worth time for enemies, but tiles done
+//anti-ailiasing -- [Fixed] - game has a type of pixel sampling, requires larger textures to be accurate
+//all enemies blink when 1 is shot -- [Fixed] - changes the texture and then reverts, may need to create 2 textures if speed gets too low
+//catch head when collide with roof
 
 int main( int argc, char* args[] )
 {
@@ -185,9 +187,8 @@ int main( int argc, char* args[] )
 		}
 		//<\game loop>
 	}
-	//delete buttons
-	delete TestGB;
-	delete quitBtn;
+	//delete main menu
+	delete Main;
 	//delete map
 	delete map1;
 	//delete player
@@ -217,24 +218,6 @@ void Initialise()
 	texture = loader.loadTexturePNG("helloworld.png");
 	TextureVect.push_back(texture);
 
-	TestBtn = loader.loadTexturePNG("buttons/testbtn.png");
-	TestoverBtn = loader.loadTexturePNG("buttons/testoverbtn.png");
-	TestdownBtn = loader.loadTexturePNG("buttons/testdownbtn.png");
-	TextureVect.push_back(TestBtn);
-	TextureVect.push_back(TestoverBtn);
-	TextureVect.push_back(TestdownBtn);
-	int w = 0;
-	int h = 0;
-	SDL_QueryTexture(TestBtn,NULL,NULL,&w,&h);
-	TestGB = new gButton((SCREEN_WIDTH - w)/2,100,w,h,TestBtn,TestoverBtn,TestdownBtn);
-
-	quitTex = loader.loadTexturePNG("buttons/quitbtn.png");
-	TextureVect.push_back(quitTex);
-	w = 0;
-	h = 0;
-	SDL_QueryTexture(quitTex,NULL,NULL,&w,&h);
-	quitBtn = new gButton((SCREEN_WIDTH - w)/2,300,w,h,quitTex);
-
 	pos.x=SCREEN_WIDTH/2 - 150;
 	pos.y=SCREEN_HEIGHT/2 -150;
 	pos.w=300;
@@ -253,17 +236,17 @@ void Initialise()
 	weapon = new Weapon(loader.loadTexturePNG("sprites/pistol.png"),loader.loadTexturePNG("sprites/bullet.png"),*player);
 
 	for(int i = 0;i<map1->getRows();i++)
+	{
+		for(int j = 0; j<map1->getCols();j++)
 		{
-			for(int j = 0; j<map1->getCols();j++)
+			if(map1->GetValue(i,j) == 3)
 			{
-				if(map1->GetValue(i,j) == 3)
-				{
-					Sad_onion *enemyinst = new Sad_onion(enemy1,i,j);
-					Enemies.push_back(enemyinst);
-				}
+				Sad_onion *enemyinst = new Sad_onion(enemy1,i,j);
+				Enemies.push_back(enemyinst);
 			}
 		}
-
+	}
+	Main = new MenuContain(loader);
 }
 
 void Update()
@@ -283,15 +266,7 @@ void Update()
 	}
 	if(state == MainMenu)
 	{
-		if(TestGB->Pressed(mouseX,mouseY))
-		{
-			state = Game;
-		}
-		if(quitBtn->Pressed(mouseX,mouseY))
-		{
-			quit = true;
-		}
-
+		Main->Update(quit);
 	}
 	if(state == Game)
 	{
@@ -312,8 +287,7 @@ void Draw()
 	}
 	if(state == MainMenu)
 	{
-		TestGB->Draw();
-		quitBtn->Draw();
+		Main->Draw();
 	}
 	if(state == Game)
 	{		

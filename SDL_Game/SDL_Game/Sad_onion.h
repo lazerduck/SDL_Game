@@ -86,14 +86,13 @@ public:
 		dst.x =(int) x -camera.x;
 		dst.y = (int)y - camera.y;
 
-		if(hitcheck)
+		if(hitcheck&&hitTimer.Time == 0)
 		{
 			hitTimer.Start();
-			hitcheck = false;
 		}
 		if(hitTimer.Time > 100)
 		{
-			SDL_SetTextureAlphaMod( texture, 0xff );
+			hitcheck = false;
 			hitTimer.Stop();
 		}
 	}

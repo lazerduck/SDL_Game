@@ -36,7 +36,15 @@ public:
 
 	void Draw()
 	{
+		if(hitcheck)
+		{
+			SDL_SetTextureAlphaMod( texture, 0x40 );
+		}
 		SDL_RenderCopyEx(renderer, texture,NULL,&dst,0.0,NULL,flip);
+		if(hitcheck)
+		{
+			SDL_SetTextureAlphaMod( texture, 0xff );
+		}
 	}
 	int hit(int X, int Y,int width,int damage)
 	{
@@ -44,7 +52,6 @@ public:
 		{
 			health -= damage;
 			printf("hit\n");
-			SDL_SetTextureAlphaMod( texture, 0x90 );
 			hitcheck = true;
 			if(health <=0)
 			{

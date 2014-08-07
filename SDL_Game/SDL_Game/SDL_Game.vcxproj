@@ -78,6 +78,7 @@
     <ClInclude Include="Initialisation.h" />
     <ClInclude Include="IOcontrol.h" />
     <ClInclude Include="Map.h" />
+    <ClInclude Include="MenuContain.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Sad_onion.h" />
     <ClInclude Include="Weapon.h" />
