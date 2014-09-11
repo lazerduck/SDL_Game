@@ -56,5 +56,17 @@
     <ClInclude Include="MenuContain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TextCont.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Hud.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Blast.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

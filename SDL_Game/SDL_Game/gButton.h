@@ -139,7 +139,18 @@ public:
 
 	~gButton(void)
 	{
-
+			if( Up!=NULL)
+			{
+				SDL_DestroyTexture(Up);
+			}
+			if( Down!=NULL)
+			{
+				SDL_DestroyTexture(Down);
+			}
+			if( Over!=Over)
+			{
+				SDL_DestroyTexture(Over);
+			}
 	}
 };
 

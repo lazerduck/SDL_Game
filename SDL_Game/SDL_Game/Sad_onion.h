@@ -22,12 +22,12 @@ public:
 		texture = tex;
 		SDL_QueryTexture(texture, NULL,NULL,&dst.w,&dst.h);
 		flip = SDL_FLIP_NONE;
-		checkedge = false;
+		checkedge = true;
 		SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-		
+		damage= 10;
 	}
 
-	void Update(Map *map)
+	void Update(Player* player,Map *map)
 	{
 		hitTimer.Update(DeltaTime);
 		x += velx*DeltaTime;
@@ -36,14 +36,14 @@ public:
 		{
 			if(velx>0)
 			{
-				if(map->GetValue((x+dst.w+1)/40,y/40) == 1 || map->GetValue((x+dst.w+1)/40,(y+dst.h-1)/40) == 1||map->GetValue((x+dst.w+1)/40,(y+dst.h+2)/40) == 0)
+				if(1<<map->GetValue((x+dst.w+1)/40,y/40) & group1 || 1<<map->GetValue((x+dst.w+1)/40,(y+dst.h-1)/40) & group1|| 1<<map->GetValue((x+dst.w+1)/40,(y+dst.h+2)/40) & group2)
 				{
 					velx = -velx;
 				}
 			}
 			else
 			{
-				if(map->GetValue((x-1)/40,y/40) == 1 || map->GetValue((x-1)/40,(y+dst.h-1)/40) == 1||map->GetValue((x-1)/40,(y+dst.h+2)/40) == 0)
+				if(1<<map->GetValue((x-1)/40,y/40) & group1 || 1<<map->GetValue((x-1)/40,(y+dst.h-1)/40) & group1||1<<map->GetValue((x-1)/40,(y+dst.h+2)/40) & group2)
 				{
 					velx = -velx;
 				}
@@ -52,23 +52,23 @@ public:
 		{
 			if(velx>0)
 			{
-				if(map->GetValue((x+dst.w+1)/40,y/40) == 1 || map->GetValue((x+dst.w+1)/40,(y+dst.h-1)/40) == 1)
+				if(1<<map->GetValue((x+dst.w+1)/40,y/40) & group1 || 1<<map->GetValue((x+dst.w+1)/40,(y+dst.h-1)/40) &group1)
 				{
 					velx = -velx;
 				}
 			}
 			else
 			{
-				if(map->GetValue((x-1)/40,y/40) == 1 || map->GetValue((x-1)/40,(y+dst.h-1)/40) == 1)
+				if(1<<map->GetValue((x-1)/40,y/40) & group1 || 1<<map->GetValue((x-1)/40,(y+dst.h-1)/40) & group1)
 				{
 					velx = -velx;
 				}
 			}
 		}
 		//falling
-		if(map->GetValue((x+1)/40,(y+dst.h+1)/40) == 1 || map->GetValue((x+dst.w-1)/40,(y+dst.h+1)/40) == 1)
+		if(1<<map->GetValue((x+1)/40,(y+dst.h+1)/40) & group1 || 1<<map->GetValue((x+dst.w-1)/40,(y+dst.h+1)/40) &group1)
 		{
-			while(map->GetValue((x+1)/40,(y+dst.h)/40) == 1 || map->GetValue((x+dst.w-1)/40,(y+dst.h)/40) == 1)
+			while(1<<map->GetValue((x+1)/40,(y+dst.h)/40) & group1 || 1<<map->GetValue((x+dst.w-1)/40,(y+dst.h)/40) & group1)
 			{
 				y--;
 			}

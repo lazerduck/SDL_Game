@@ -37,10 +37,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\vslib\SDL2_image-2.0.0\include;C:\vslib\SDL2-2.0.3\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\vslib\SDL2_ttf-2.0.12\include;C:\vslib\SDL2_image-2.0.0\include;C:\vslib\SDL2-2.0.3\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>C:\vslib\SDL2_image-2.0.0\lib\x86;C:\vslib\SDL2-2.0.3\lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\vslib\SDL2_ttf-2.0.12\lib\x86;C:\vslib\SDL2_image-2.0.0\lib\x86;C:\vslib\SDL2-2.0.3\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -49,7 +49,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -70,17 +70,21 @@
     <ClCompile Include="game1.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Blast.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="gButton.h" />
     <ClInclude Include="gTimer.h" />
+    <ClInclude Include="Hud.h" />
     <ClInclude Include="ImgLoader.h" />
     <ClInclude Include="Initialisation.h" />
     <ClInclude Include="IOcontrol.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MenuContain.h" />
+    <ClInclude Include="Mine.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Sad_onion.h" />
+    <ClInclude Include="TextCont.h" />
     <ClInclude Include="Weapon.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

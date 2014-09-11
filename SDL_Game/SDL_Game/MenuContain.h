@@ -8,6 +8,8 @@ private:
 	SDL_Rect ForeRect;
 	SDL_Texture* NewGame;
 	SDL_Texture* Exit;
+	SDL_Texture* TextTest;
+	SDL_Rect TextRect;
 	gButton* New_Game;
 	gButton* Exit_Game;
 
@@ -37,6 +39,17 @@ public:
 		SDL_QueryTexture(Foreground,NULL,NULL,&ForeRect.w,&ForeRect.h);
 		ForeRect.w /= 1.3*scalex;
 		ForeRect.h /= 1.3*scaley;
+		SDL_Color col;
+		col.a = 0x00;
+		col.r = 0x00;
+		col.g = 0x00;
+		col.b = 0x00;
+		TextTest = TextCreator.CreateText("version: 0.1.2", col);
+		TextRect.x = 0;
+		TextRect.y = 0;
+		SDL_QueryTexture(TextTest,NULL,NULL,&TextRect.w,&TextRect.h);
+		TextRect.h = TextRect.h/2;
+		TextRect.w = TextRect.w/2;
 	}
 
 	void Update(bool& quit)
@@ -57,6 +70,7 @@ public:
 	{
 		SDL_RenderCopy(renderer,Background,NULL,&BackRect);
 		SDL_RenderCopy(renderer,Foreground,NULL,&ForeRect);
+		SDL_RenderCopy(renderer,TextTest,NULL,&TextRect);
 		New_Game->Draw();
 		Exit_Game->Draw();
 	}
@@ -65,8 +79,6 @@ public:
 	{
 		SDL_DestroyTexture(Background);
 		SDL_DestroyTexture(Foreground);
-		SDL_DestroyTexture(NewGame);
-		SDL_DestroyTexture(Exit);
 		delete New_Game;
 		delete Exit_Game;
 	}

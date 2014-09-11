@@ -72,7 +72,7 @@ public:
 		DrawRect.y = 0;
 		DrawRect.w = 40;
 		DrawRect.h = 40;
-		
+
 	}
 
 	void SetData(int* Data)
@@ -122,7 +122,7 @@ public:
 				if( DrawRect.x<camera.view.x+camera.view.w && camera.view.y < DrawRect.y+DrawRect.h && camera.view.x < DrawRect.x+DrawRect.w && DrawRect.y < camera.view.y+camera.view.h)
 				{
 					int texnum = data[j+(columns*i)]-1;
-					if(texnum < Tiles.size() && texnum>=0&&texnum !=2)
+					if(texnum < Tiles.size() && texnum>=0&&texnum !=Enemy_T)
 					{
 						DrawRect.x = (j*40) - camera.x;
 						DrawRect.y = (i*40) - camera.y;
@@ -136,9 +136,13 @@ public:
 	{
 		return rows;
 	}
-		int getCols()
+	int getCols()
 	{
 		return columns;
+	}
+	void setValue(int i, int j,int val)
+	{
+		data[j+(columns*i)] = val;
 	}
 
 	~Map(void)

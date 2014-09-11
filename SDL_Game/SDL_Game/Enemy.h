@@ -9,12 +9,13 @@ protected:
 	SDL_RendererFlip flip;
 	bool hitcheck;
 public:
-
+	int damage;
 	Enemy(void)
 	{
 	}
 	Enemy(SDL_Texture *tex, int X,int Y)
 	{
+		damage= 0;
 		x = X*40;
 		y = Y*40;
 		dst.x = x;
@@ -26,14 +27,17 @@ public:
 		hitcheck = false;
 	}
 
-	virtual void Update(Map *map)
+	virtual void Update(Player* player,Map *map)
 	{
 		x += velx*DeltaTime;
 		y += vely*DeltaTime;
 		dst.x =(int) x -camera.x;
 		dst.y = (int)y - camera.y;
 	}
-
+	int getHealth()
+	{
+		return health;
+	}
 	void Draw()
 	{
 		if(hitcheck)
@@ -46,12 +50,12 @@ public:
 			SDL_SetTextureAlphaMod( texture, 0xff );
 		}
 	}
-	int hit(int X, int Y,int width,int damage)
+	virtual int hit(int X, int Y,int width,int damage)
 	{
-		if(collision(X,Y) || collision(X+width,Y)||collision(X,Y) || collision(X+width,Y+width))
+		if(X + width > x && X < x + dst.w && Y < y+dst.h && Y+ width > y) 
 		{
+			
 			health -= damage;
-			printf("hit\n");
 			hitcheck = true;
 			if(health <=0)
 			{
@@ -61,16 +65,25 @@ public:
 		}
 		return 0;
 	}
-	bool collision(int X, int Y)
+	virtual int hit(SDL_Rect rect,int damage)
 	{
-		if(X>x && X<x+dst.w && Y>y&&Y<y+dst.h)
+		if(rect.x + rect.w > x && rect.x < x + dst.w && rect.y < y+dst.h && rect.y + rect.h > y) 
 		{
-			return true;
+			health -= damage;
+			if(damage >0)
+			{
+				hitcheck = true;
+			}
+			if(health <=0)
+			{
+				return 2;
+			}
+			return 1;
 		}
-		return false;
+		return 0;
 	}
 
-	~Enemy(void)
+	virtual ~Enemy(void)
 	{
 	}
 };

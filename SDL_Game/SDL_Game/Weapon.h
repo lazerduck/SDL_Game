@@ -25,9 +25,12 @@ public:
 		bullets = 100;
 		gunSprite = texture;
 		bullet = bullet_tex;
-		dst.x = player.getX();
+		dst.x = player.getX()+3- camera.x;
 		dst.y = player.getY();
 		SDL_QueryTexture(gunSprite, NULL,NULL,&dst.w,&dst.h);
+		//14 20
+		dst.w = 25;
+		dst.h = 11;
 		bulletX = new float[bullets];
 		bulletY = new float[bullets];
 		velX = new float[bullets];
@@ -44,23 +47,41 @@ public:
 	}
 	void Update(Player &player, Map *map)
 	{
-		if(!Space)
+		if(player.hit)
+		{
+			SDL_SetTextureAlphaMod( gunSprite, 0x40 );
+		}
+		else
+		{
+			SDL_SetTextureAlphaMod( gunSprite, 0xff );
+		}
+		if(!Space&&!player.dead)
 		{
 			if(Right)
 			{
 				dir = true;
 				flip = SDL_FLIP_NONE;
+
 			}
 			if(Left)
 			{
 				dir = false;
 				flip = SDL_FLIP_HORIZONTAL;
+
 			}
 		}
+		if(dir)
+		{
+			dst.x = player.getX()+8- camera.x;
+		}
+		else
+		{
+			dst.x = player.getX()-2- camera.x;
+		}
 		timer1.Update(DeltaTime);
-		dst.x = player.getX()- camera.x;
-		dst.y = player.getY()+25-camera.y;
-		if(timer1.Time>400)
+
+		dst.y = player.getY()+18-camera.y;
+		if(timer1.Time>100)
 		{
 			timer1.Stop();
 		}
@@ -73,16 +94,16 @@ public:
 					timer1.Start();
 					if(flip == SDL_FLIP_HORIZONTAL)
 					{
-						*(bulletX+i) = player.getX()-2;
+						*(bulletX+i) = player.getX();
 					}
 					else
-						*(bulletX+i) = player.getX()+10;
-					*(bulletY+i) = player.getY()+28;
+						*(bulletX+i) = player.getX()+32;
+					*(bulletY+i) = player.getY()+20;
 					if(dir)
-						*(velX+i) = 0.5;
+						*(velX+i) = 0.7;
 					else
-						*(velX+i) = -0.5;
-					*(velY+i) = (rand()%1000 - 500)/10000.0;
+						*(velX+i) = -0.7;
+					*(velY+i) = (rand()%1000 - 500)/20000.0;
 					break;
 				}
 			}
@@ -94,11 +115,11 @@ public:
 				*(bulletX+i)+=*(velX+i)*DeltaTime;
 				*(bulletY+i)+=*(velY+i)*DeltaTime;
 			}
-			if(*(bulletX+i) <0 ||*(bulletX+i)>40*40)
+			if(*(bulletX+i) <0 ||*(bulletX+i)> map->getCols() *40)
 			{
 				*(bulletX+i) = -1;
 			}
-			if(map->GetValue(*(bulletX+i)/40,*(bulletY+i)/40) == 1)
+			if(map->GetValue(*(bulletX+i)/40,*(bulletY+i)/40) == 1 || map->GetValue(*(bulletX+i)/40,(*(bulletY+i)+10)/40) == 1)
 			{
 				*(bulletX+i) = -1;
 			}
@@ -109,18 +130,22 @@ public:
 			bool isdel = false;
 			for(int i = 0; i<bullets;i++)
 			{
-				int res = (*it)->hit(bulletX[i],bulletY[i],5,1);
-				if(res > 0)
+				if(bulletX[i] != -1)
 				{
-					bulletX[i] = -1;
+					int res = (*it)->hit(bulletX[i],bulletY[i],5,1);
+					if(res > 0)
+					{
+						bulletX[i] = -1;
 
-				}
-				if(res == 2)
-				{
-   					it = Enemies.erase(it);
-					isdel = true;
-					break;
-					
+					}
+					if(res == 2)
+					{
+						delete (*it);
+						it = Enemies.erase(it);
+						isdel = true;
+						break;
+
+					}
 				}
 			}
 			if(!isdel)
@@ -137,6 +162,7 @@ public:
 		bullRect.y = 0;
 		bullRect.h = 10;
 		bullRect.w = 10;
+
 		SDL_RenderCopyEx(renderer, gunSprite,NULL,&dst,0.0,NULL,flip);
 		for(int i = 0; i<bullets;i++)
 		{

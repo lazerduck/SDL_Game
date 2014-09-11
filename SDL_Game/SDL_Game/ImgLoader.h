@@ -86,12 +86,7 @@ public:
 			while(!ReadFile.eof())
 			{
 				ReadFile>>*(data+count);
-				printf("%d",*(data+count));
 				count++;
-				if(count%x == 0)
-				{
-					printf("\n");
-				}
 			}
 		}
 		ReadFile.close();
