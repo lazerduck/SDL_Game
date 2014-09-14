@@ -120,7 +120,7 @@ MenuContain* Main;
 //bullett hit effect -- [Done] - enemies flicker when hit particle effects may still be nessecary
 //enemies
 //-flying
-//-mines -- [Progress] - Explode and blast affect other mines, need to affect player
+//-mines -- [Done] - Explode and blast affect other mines and player
 //-spikes -- [Done] - spikes and new map improvements as well as load area
 //-turrets
 //take damage -- [Done] - use loop in main game to get around refences
@@ -349,6 +349,12 @@ void Update()
 		}
 		for(vector<Blast*>::iterator it = Blasts.begin(); it != Blasts.end();)
 		{
+			//hittest player
+			if(player->CircleCollide((*it)->getX(),(*it)->getY(),(*it)->getR()))
+			{
+				player->Damage(30);
+			}
+
 			bool isdel = false;
 			(*it)->Update();
 			if((*it)->dead)

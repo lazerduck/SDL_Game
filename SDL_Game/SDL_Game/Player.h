@@ -220,6 +220,68 @@ public:
 		SDL_RenderCopyEx(renderer,Sprite,&source,&dst,0.0,NULL,flip);
 
 	}
+	bool CirclePoint(int cX, int cY, float rad, int rx, int ry)
+	{
+		if(std::pow(float(cX-rx),2) + std::pow(float(cY-ry),2) <std::pow(rad,2))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	bool CircleCollide(int cX, int cY, float rad)
+	{
+		//is it in range
+		if(std::pow(rad+dst.h,2)> std::pow(float(cX-(x-(dst.w/2))),2) + std::pow(float(cY-(y-(dst.h/2))),2))
+		{
+			//is it between the the x coords
+			if(x<cX&&cX<x+dst.w)
+			{
+				//is it above or below
+				if(y-cY<rad&&y-cY>0)
+				{
+					return true;
+				}
+				else if(cY-y+dst.h<rad&&cY-y+dst.h>0)
+				{
+					return true;	
+				}
+
+			}
+			else if(y<cX&&cY<y+dst.h)
+			{
+				//is it above or below
+				if(x-cX<rad&&x-cX>0)
+				{
+					return true;
+				}
+				else if(cX-x+dst.w<rad&&cX-x+dst.w>0)
+				{
+					return true;	
+				}
+			}
+			else
+			{
+				if(CirclePoint(cX, cY, rad, x, y))
+				{
+					return true;
+				}
+				else if(CirclePoint(cX, cY, rad, x+dst.w, y))
+				{
+					return true;
+				}
+				else if(CirclePoint(cX, cY, rad, x, y+dst.h))
+				{
+					return true;
+				}
+				else if(CirclePoint(cX, cY, rad, x+dst.w, y+dst.h))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
 	void Damage(int dam)
 	{
