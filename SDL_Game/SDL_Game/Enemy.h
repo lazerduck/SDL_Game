@@ -8,6 +8,7 @@ protected:
 	SDL_Texture *texture;
 	SDL_RendererFlip flip;
 	bool hitcheck;
+	float rot;
 public:
 	int damage;
 	Enemy(void)
@@ -15,6 +16,7 @@ public:
 	}
 	Enemy(SDL_Texture *tex, int X,int Y)
 	{
+		rot = 0;
 		damage= 0;
 		x = X*40;
 		y = Y*40;
@@ -44,7 +46,7 @@ public:
 		{
 			SDL_SetTextureAlphaMod( texture, 0x40 );
 		}
-		SDL_RenderCopyEx(renderer, texture,NULL,&dst,0.0,NULL,flip);
+		SDL_RenderCopyEx(renderer, texture,NULL,&dst,rot,NULL,flip);
 		if(hitcheck)
 		{
 			SDL_SetTextureAlphaMod( texture, 0xff );

@@ -24,7 +24,7 @@ int MIDY = 360;
 enum State {Splash,MainMenu,Game,GameOver};
 State state;
 
-enum Tiles {Empty_T, Ground_T, Grass_T, Glass_T, Spike_T, Enemy_T, Mine_T};
+enum Tiles {Empty_T, Ground_T, Grass_T, Glass_T, Spike_T, Enemy_T, Mine_T, Turret_T};
 static const unsigned group1 = (1<<Ground_T)|(1<<Grass_T)|(1<<Spike_T);
 static const unsigned group2 = (1<<Empty_T)|(1<<Glass_T);
 
@@ -71,6 +71,7 @@ vector<Blast*> Blasts;
 #include "Enemy.h"
 #include "Sad_onion.h"
 #include "Mine.h"
+#include "Turret.h"
 //menu
 #include "MenuContain.h"
 //hud
@@ -122,7 +123,7 @@ MenuContain* Main;
 //-flying
 //-mines -- [Done] - Explode and blast affect other mines and player
 //-spikes -- [Done] - spikes and new map improvements as well as load area
-//-turrets
+//-turrets -- [Progress] - base of turret done
 //take damage -- [Done] - use loop in main game to get around refences
 //sprites
 //-enemy
@@ -165,7 +166,8 @@ MenuContain* Main;
 //memory leak on hud -- [Fixed] - defining char* s with a new and then replacing it with itoa caused issues, using stringstream
 //odd memory leaks unknown cause -- [Fixed] - didn't delete the object before erasing it
 //enemy doesnt cause damage -- [Fixed] - inaccurate collision detection, now improved, improve bullet as well
-//2 hits at the same time
+//2 hits at the same time -- [Fixed] - only take damage if not "hit"
+//texture leaks? no evidence so far but should happen -- [Fixed] - was actually not deleting mine blasts which out lasted the thread
 
 int main( int argc, char* args[] )
 {
@@ -191,7 +193,7 @@ int main( int argc, char* args[] )
 			//get framrate
 			if(SDL_GetTicks() - start > 1000)
 			{
-				//printf("fps: %d\n", counted);
+				printf("fps: %d\n", counted);
 				counted = 0;
 				start = SDL_GetTicks();
 			}
@@ -229,6 +231,10 @@ int main( int argc, char* args[] )
 	}
 	//delete enemies Enemies
 	for(vector<Enemy*>::iterator it = Enemies.begin(); it != Enemies.end(); ++it)
+	{
+		delete *it;
+	}
+	for(vector<Blast*>::iterator it = Blasts.begin(); it != Blasts.end();++it)
 	{
 		delete *it;
 	}
@@ -300,6 +306,8 @@ void Update()
 			SDL_Texture* enemy1 = loader.loadTexturePNG("sprites/sad_onion.png");
 			SDL_Texture* Minetex = loader.loadTexturePNG("sprites/Mine.png");
 			SDL_Texture* Boom = loader.loadTexturePNG("Sprites/mineblast.png");
+			SDL_Texture* turret_tex = loader.loadTexturePNG("Sprites/turret_base.png");
+			SDL_Texture* turret_gun = loader.loadTexturePNG("Sprites/turret_gun.png");
 			for(int i = 0;i<map1->getRows();i++)
 			{
 				for(int j = 0; j<map1->getCols();j++)
@@ -315,6 +323,12 @@ void Update()
 						map1->setValue(i,j,0);
 						Mine *mineinst = new Mine(Minetex,Boom,i,j);
 						Enemies.push_back(mineinst);
+					}
+					if(map1->GetValue(i,j) ==Turret_T)
+					{
+						map1->setValue(i,j,0);
+						Turret *turinst = new Turret(turret_tex,turret_gun,i,j);
+						Enemies.push_back(turinst);
 					}
 				}
 			}

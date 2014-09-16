@@ -68,5 +68,8 @@
     <ClInclude Include="Blast.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Turret.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

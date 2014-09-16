@@ -11,6 +11,7 @@ public:
 	}
 	Sad_onion(SDL_Texture *tex, int X,int Y)
 	{
+		rot = 0;
 		hitcheck = false;
 		x = (X*40);
 		y = (Y*40)-9;

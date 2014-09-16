@@ -14,6 +14,7 @@ public:
 
 	Mine(SDL_Texture* tex,SDL_Texture *boom, int X, int Y)
 	{
+		rot = 0;
 		Boom= boom;
 		X = X*40;
 		Y = Y*40;
@@ -47,12 +48,19 @@ public:
 		}
 		dst.x =(int) x -camera.x;
 		dst.y = (int)y - camera.y;
+		if(health == 0)
+		{
+			explode = true;
+		}
 	}
 
 	~Mine(void)
 	{
-		Blast *b = new Blast(Boom,x+(dst.w/2),y+(dst.h/2));
-		Blasts.push_back(b);
+		if(explode)
+		{
+			Blast *b = new Blast(Boom,x+(dst.w/2),y+(dst.h/2));
+			Blasts.push_back(b);
+		}
 
 	}
 };

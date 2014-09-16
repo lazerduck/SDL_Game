@@ -285,7 +285,7 @@ public:
 
 	void Damage(int dam)
 	{
-		if(damtimer.Time == 0)
+		if(damtimer.Time == 0&&dam!=0&&!hit)
 		{
 			health -= dam;
 			damtimer.Start();
