@@ -71,5 +71,8 @@
     <ClInclude Include="Turret.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Turret_gun.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

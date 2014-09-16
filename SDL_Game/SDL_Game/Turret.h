@@ -6,6 +6,7 @@ private:
 	int orientation;
 	SDL_Texture* guntex;
 	gTimer hitTimer;
+	Turret_gun* turr_gun;
 public:
 
 	Turret(void)
@@ -31,6 +32,7 @@ public:
 		damage = 0;
 		hitcheck = false;
 		flip = SDL_FLIP_NONE;
+		turr_gun = new Turret_gun(gun,X-5,Y - dst.h/2);
 	}
 
 	void Update(Player* player,Map *map)
@@ -38,6 +40,7 @@ public:
 		hitTimer.Update(DeltaTime);
 		dst.x = x - camera.x;
 		dst.y = y - camera.y;
+		turr_gun->update(dst.x,dst.y);
 		if(1<<map->GetValue(x/40,(y/40) -1) & group1)
 		{
 			rot = 180;
@@ -66,8 +69,24 @@ public:
 			hitTimer.Stop();
 		}
 	}
+
+	void Draw() override
+	{
+		if(hitcheck)
+		{
+			SDL_SetTextureAlphaMod( texture, 0x40 );
+		}
+		SDL_RenderCopyEx(renderer, texture,NULL,&dst,rot,NULL,flip);
+		if(hitcheck)
+		{
+			SDL_SetTextureAlphaMod( texture, 0xff );
+		}
+		turr_gun->Draw(hitcheck);
+	}
+
 	~Turret(void)
 	{
+		delete turr_gun;
 	}
 };
 

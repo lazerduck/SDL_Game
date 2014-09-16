@@ -40,7 +40,7 @@ public:
 	{
 		return health;
 	}
-	void Draw()
+	virtual void Draw()
 	{
 		if(hitcheck)
 		{

@@ -41,6 +41,13 @@ float DeltaTime = 0;
 float PrevTicks = 0;
 float slowTime = 1;
 
+//enemy bullets
+float *posx = new float[200];
+float *posy = new float[200];
+float *velx = new float[200];
+float *vely = new float[200];
+
+
 //mouse
 int mouseX = 0;
 int mouseY = 0;
@@ -71,7 +78,9 @@ vector<Blast*> Blasts;
 #include "Enemy.h"
 #include "Sad_onion.h"
 #include "Mine.h"
+#include "Turret_gun.h"
 #include "Turret.h"
+
 //menu
 #include "MenuContain.h"
 //hud
@@ -193,7 +202,7 @@ int main( int argc, char* args[] )
 			//get framrate
 			if(SDL_GetTicks() - start > 1000)
 			{
-				printf("fps: %d\n", counted);
+				//printf("fps: %d\n", counted);
 				counted = 0;
 				start = SDL_GetTicks();
 			}
@@ -240,7 +249,7 @@ int main( int argc, char* args[] )
 	}
 	//delete hud
 	delete hud;
-
+	delete []posx; delete []posy; delete []velx; delete []vely;
 	init.DeleteTextures(TextureVect);
 	init.Exit(window,screenSurface);
 	return 0;
