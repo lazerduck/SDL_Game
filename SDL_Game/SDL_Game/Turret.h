@@ -40,7 +40,23 @@ public:
 		hitTimer.Update(DeltaTime);
 		dst.x = x - camera.x;
 		dst.y = y - camera.y;
-		turr_gun->update(dst.x,dst.y);
+		int Rot = rot;
+		switch(Rot)
+		{
+		case 0:
+			turr_gun->update(dst.x - dst.w/2,dst.y-5,player);
+			break;
+		case 180:
+			turr_gun->update(dst.x - dst.w/2,dst.y+dst.h/2-3,player);
+			break;
+		case 270:
+			turr_gun->update(dst.x -dst.w+7,dst.y + (dst.h/2)-12,player);
+			break;
+		case 90:
+			turr_gun->update(dst.x -5,dst.y + (dst.h/2)-12,player);
+			break;
+		}
+		
 		if(1<<map->GetValue(x/40,(y/40) -1) & group1)
 		{
 			rot = 180;
