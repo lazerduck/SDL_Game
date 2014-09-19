@@ -43,10 +43,12 @@ float PrevTicks = 0;
 float slowTime = 1;
 
 //enemy bullets
-float *posx = new float[200];
-float *posy = new float[200];
-float *velx = new float[200];
-float *vely = new float[200];
+int enemybull = 200;
+float *posx = new float[enemybull];
+float *posy = new float[enemybull];
+float *velx = new float[enemybull];
+float *vely = new float[enemybull];
+SDL_Texture* enemyBullet;
 
 
 //mouse
@@ -105,6 +107,9 @@ Weapon* weapon;
 void Update();
 void Draw();
 void Initialise();
+
+void UpdateEnemyBull();
+void DrawEnemyBull();
 //classes
 IOcontrol io;
 ImgLoader loader;
@@ -186,7 +191,7 @@ int main( int argc, char* args[] )
 	//initialiser
 	Initialisation init;
 	camera.y = 40;
-	
+
 	success = init.start();
 
 	Initialise();
@@ -210,17 +215,17 @@ int main( int argc, char* args[] )
 			//get deltatime
 			DeltaTime = (SDL_GetTicks() - PrevTicks)/slowTime;
 			PrevTicks = SDL_GetTicks();
-			
-			 SDL_RenderClear( renderer );
-			 //timer update
-			 for(vector<gTimer*>::iterator it = Timers.begin(); it!= Timers.end(); ++it)
-			 {
-				 (*it)->Update(DeltaTime);
-			 }
 
-			 Update();
+			SDL_RenderClear( renderer );
+			//timer update
+			for(vector<gTimer*>::iterator it = Timers.begin(); it!= Timers.end(); ++it)
+			{
+				(*it)->Update(DeltaTime);
+			}
 
-			 Draw();
+			Update();
+
+			Draw();
 
 			SDL_RenderPresent(renderer);
 			++counted;
@@ -270,7 +275,7 @@ void Initialise()
 	pos.y=SCREEN_HEIGHT/2 -150;
 	pos.w=300;
 	pos.h = 300;
-	
+
 	SDL_Texture* tile1 = loader.loadTexturePNG("tiles/footile.png");
 	SDL_Texture* tile2 = loader.loadTexturePNG("tiles/dirtgrass.png");
 	SDL_Texture* tile3 = loader.loadTexturePNG("tiles/glasstile.png");
@@ -278,7 +283,7 @@ void Initialise()
 	SDL_Texture* enemy1 = loader.loadTexturePNG("sprites/sad_onion.png");
 
 	TextureVect.push_back(enemy1);
-	
+
 	tiles.push_back(tile1);
 	tiles.push_back(tile2);
 	tiles.push_back(tile3);
@@ -288,6 +293,12 @@ void Initialise()
 	hud = new Hud(loader.loadTexturePNG("sprites/HealthBlock.png"));
 	weapon = new Weapon(loader.loadTexturePNG("sprites/pistol.png"),loader.loadTexturePNG("sprites/bullet.png"),*player);
 
+	enemyBullet = loader.loadTexturePNG("sprites/bullet.png");
+
+	for(int i = 0; i<enemybull;i++)
+	{
+		*(posx+i) = -1;
+	}
 
 	Main = new MenuContain(loader);
 }
@@ -401,6 +412,7 @@ void Update()
 				slowTime = 1;
 			}
 		}
+		UpdateEnemyBull();
 	}
 }
 
@@ -418,6 +430,7 @@ void Draw()
 	{		
 		player->Draw();
 		weapon->Draw();
+		DrawEnemyBull();
 		map1->Draw();
 		for(vector<Enemy*>::iterator it = Enemies.begin(); it != Enemies.end();++it)
 		{
@@ -428,5 +441,42 @@ void Draw()
 			(*it)->Draw();
 		}
 		hud->Draw();
+	}
+}
+void UpdateEnemyBull()
+{
+	for(int i = 0; i<enemybull;i++)
+	{
+		if(*(posx +i)!=-1)
+		{
+			if(*(posx+i) != -1)
+			{
+				*(posx+i)+=*(velx+i)*DeltaTime;
+				*(posy+i)+=*(vely+i)*DeltaTime;
+			}
+			if(*(posx+i) <0 ||*(posx+i)> map1->getCols() *40)
+			{
+				*(posx+i) = -1;
+			}
+			if(map1->GetValue(*(posx+i)/40,*(posy+i)/40) == 1 || map1->GetValue(*(posx+i)/40,(*(posy+i)+10)/40) == 1)
+			{
+				*(posx+i) = -1;
+			}
+		}
+	}
+}
+void DrawEnemyBull()
+{
+	SDL_Rect bulRect;
+	bulRect.w = 10;
+	bulRect.h = 10;
+	for(int i = 0; i<enemybull;i++)
+	{
+		if(*(posx+i) != -1)
+		{
+			bulRect.x = *(posx + i) - camera.x;
+			bulRect.y = *(posy + i) - camera.y;
+			SDL_RenderCopy(renderer, texture,NULL,&bulRect);
+		}
 	}
 }

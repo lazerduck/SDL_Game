@@ -37,10 +37,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\computing\Documents\GitHub\SDL_Game\vslib\SDL-2.0\include;C:\Users\computing\Documents\GitHub\SDL_Game\vslib\SDL2_ttf-2.0.12\include;C:\Users\computing\Documents\GitHub\SDL_Game\vslib\SDL2_image-2.0.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>A:\Users\Adam\Documents\GitHub\SDL_Game\vslib\SDL-2.0\include;A:\Users\Adam\Documents\GitHub\SDL_Game\vslib\SDL2_ttf-2.0.12\include;A:\Users\Adam\Documents\GitHub\SDL_Game\vslib\SDL2_image-2.0.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>C:\Users\computing\Documents\GitHub\SDL_Game\vslib\SDL2_ttf-2.0.12\lib\x86;C:\Users\computing\Documents\GitHub\SDL_Game\vslib\SDL2_image-2.0.0\lib\x86;C:\Users\computing\Documents\GitHub\SDL_Game\vslib\SDL-2.0\lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>A:\Users\Adam\Documents\GitHub\SDL_Game\vslib\SDL2_ttf-2.0.12\lib\x86;A:\Users\Adam\Documents\GitHub\SDL_Game\vslib\SDL2_image-2.0.0\lib\x86;A:\Users\Adam\Documents\GitHub\SDL_Game\vslib\SDL-2.0\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
