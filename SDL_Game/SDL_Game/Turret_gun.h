@@ -6,7 +6,7 @@ private:
 	SDL_Texture* tex;
 	float rotation;
 	float rotgoal;
-	float prevgoal;
+	float rotrad;
 	int centx; int centy;
 	bool hitcheck;
 	SDL_Point cent;
@@ -43,10 +43,11 @@ public:
 		centy = centY;
 		cent.x = 20;
 		cent.y = 18;
-		prevgoal = rotgoal;
+		rotrad = 
 		rotgoal = std::atan2(float(dst.y - (player->getY()-camera.y)),float(dst.x - (player->getX()-camera.x)))*(180/3.141593);
 		float temp = shortest(rotation, rotgoal);
 		rotation += temp/30;
+		rotrad = (rotation-180) *(3.141593/180);
 		if(rotation >= 180)
 		{
 			rotation -= 360;
@@ -89,16 +90,11 @@ public:
 			{
 				if(*(posx+i) == -1)
 				{
-					cout<<"shoot\n";
-					cout<<shoot_timer.Time<<"\n";
-					*(posx+i) = dst.x+camera.x;
-					*(posy+i) = dst.y+camera.y;
-					float x = ((player->getX()-camera.x)-dst.x);
-					float y = ((player->getY()-camera.y)-dst.y);
-					float tot = x+y;
-					*(velx+i) = -x/tot;
-					*(vely+i) = -y/tot;
-					cout<<*(velx+i) + *(vely+i)<<"\n";
+					*(posx+i) = dst.x+(dst.w/2)+camera.x;
+					*(posy+i) = dst.y+(dst.h/2)+camera.y;
+					
+					*(velx+i) = cos(rotrad)*speed;
+					*(vely+i) = sin(rotrad) * speed;
 					break;
 				}
 			}
@@ -108,6 +104,18 @@ public:
 			shoot_timer.Stop();
 		}
 		
+	}
+	float lessthan(float val)
+	{
+		if(val>1)
+		{
+			val = val - 2*(val-1);
+		}
+		if(val<-1)
+		{
+			val = val - 2*(val+1);
+		}
+		return val;
 	}
 
 	~Turret_gun(void)
@@ -119,5 +127,6 @@ public:
 
 
 	}
+
 };
 

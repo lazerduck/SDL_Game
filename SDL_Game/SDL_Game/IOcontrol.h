@@ -56,6 +56,10 @@ public:
 				{
 					Space = true;
 				}
+				if(e->key.keysym.sym == SDLK_ESCAPE)
+				{
+					Esc = true;
+				}
 			}
 			if(e->type == SDL_KEYUP)
 			{
@@ -83,6 +87,10 @@ public:
 				if(e->key.keysym.sym == SDLK_SPACE)
 				{
 					Space = false;
+				}
+				if(e->key.keysym.sym == SDLK_ESCAPE)
+				{
+					Esc = false;
 				}
 			}
 		}

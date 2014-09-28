@@ -119,7 +119,7 @@ public:
 			{
 				*(bulletX+i) = -1;
 			}
-			if(map->GetValue(*(bulletX+i)/40,*(bulletY+i)/40) == 1 || map->GetValue(*(bulletX+i)/40,(*(bulletY+i)+10)/40) == 1)
+			if(1<<map->GetValue(*(bulletX+i)/40,*(bulletY+i)/40) & group1 || 1<<map->GetValue(*(bulletX+i)/40,(*(bulletY+i)+10)/40) == group1)
 			{
 				*(bulletX+i) = -1;
 			}

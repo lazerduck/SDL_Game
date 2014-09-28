@@ -22,7 +22,7 @@ const int SCREEN_HEIGHT = 480;
 int MIDX = 640;
 int MIDY = 360;
 
-enum State {Splash,MainMenu,Game,GameOver};
+enum State {Splash,MainMenu,Game,GameOver,Pause};
 State state;
 
 enum Tiles {Empty_T, Ground_T, Grass_T, Glass_T, Spike_T, Enemy_T, Mine_T, Turret_T};
@@ -60,7 +60,8 @@ int OldMouse = 0;
 int playerX = 100;
 int playerY = 100;
 //keys
-bool Up,Down,Left,Right,Space;
+bool Up,Down,Left,Right,Space,Esc;
+bool Escprev;
 //camera
 #include "Camera.h"
 Camera camera;
@@ -135,10 +136,10 @@ MenuContain* Main;
 //todo
 //bullett hit effect -- [Done] - enemies flicker when hit particle effects may still be nessecary
 //enemies
-//-flying
+//-flying -- [progress] - none
 //-mines -- [Done] - Explode and blast affect other mines and player
 //-spikes -- [Done] - spikes and new map improvements as well as load area
-//-turrets -- [Progress] - base of turret done
+//-turrets -- [Done] - Hits player, no sight check
 //take damage -- [Done] - use loop in main game to get around refences
 //sprites
 //-enemy
@@ -413,6 +414,23 @@ void Update()
 			}
 		}
 		UpdateEnemyBull();
+		//check if we should pause
+		if(Escprev == true&&Esc == false)
+		{
+			state = Pause;
+			
+		}
+		Escprev = Esc;
+	}
+	if(state == Pause)
+	{
+		//check if the escape key has been pressed
+		if(Escprev == true&&Esc == false)
+		{
+			state = Game;
+			
+		}
+		Escprev = Esc;
 	}
 }
 
@@ -426,7 +444,7 @@ void Draw()
 	{
 		Main->Draw();
 	}
-	if(state == Game)
+	if(state == Game || state == Pause)
 	{		
 		player->Draw();
 		weapon->Draw();
@@ -462,6 +480,12 @@ void UpdateEnemyBull()
 			{
 				*(posx+i) = -1;
 			}
+			SDL_Rect bulBox;
+			bulBox.x = *(posx+i);
+			bulBox.y = *(posy+i);
+			bulBox.w = 10;
+			bulBox.h = 10;
+			player->hittest(bulBox,5);			
 		}
 	}
 }

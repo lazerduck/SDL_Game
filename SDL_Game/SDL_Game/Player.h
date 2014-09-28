@@ -312,5 +312,14 @@ public:
 	{
 		SDL_DestroyTexture(Sprite);
 	}
+	int hittest(SDL_Rect rect,int damage)
+	{
+		if(rect.x + rect.w > x && rect.x < x + dst.w && rect.y < y+dst.h && rect.y + rect.h > y) 
+		{
+			Damage(damage);
+			return 1;
+		}
+		return 0;
+	}
 };
 
