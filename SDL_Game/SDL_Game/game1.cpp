@@ -1,3 +1,14 @@
+//map format
+/*maprows mapcolumns playerstartx playerstarty
+1 1 1 1 1 1 1 1 1 1 1 1 1
+1 0 0 0 0 0 0 0 0 0 0 0 1
+1 0 0 0 0 0 0 0 0 0 0 0 1
+1 0 0 0 0 0 0 0 0 0 0 0 1
+1 0 0 0 0 0 0 0 0 0 0 0 1
+1 0 0 0 0 0 0 0 0 0 0 0 1
+1 0 0 0 0 0 0 0 0 0 0 0 1
+1 0 0 0 0 0 0 0 0 0 0 0 1
+1 1 1 1 1 1 1 1 1 1 1 1 1*/
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
@@ -10,6 +21,7 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
+#include <vld.h> 
 
 using namespace std;
 float scalex = 1.2;
@@ -57,8 +69,8 @@ int mouseY = 0;
 int MouseState = 0;
 int OldMouse = 0;
 //player
-int playerX = 100;
-int playerY = 100;
+int playerStartX = 100;
+int playerStartY = 100;
 //keys
 bool Up,Down,Left,Right,Space,Esc;
 bool Escprev;
@@ -111,6 +123,8 @@ void Initialise();
 
 void UpdateEnemyBull();
 void DrawEnemyBull();
+
+void loadLevel(string mapadd);
 //classes
 IOcontrol io;
 ImgLoader loader;
@@ -131,7 +145,18 @@ vector<SDL_Texture*> tiles;
 Player* player;
 
 MenuContain* Main;
+MenuContain* PauseMenu;
 
+//main menu images
+SDL_Texture* Foreground;
+SDL_Texture* Background;
+SDL_Texture* TextTest;
+
+SDL_Rect BackRect;
+SDL_Rect ForeRect;
+SDL_Rect TextRect;
+
+SDL_Color col;
 
 //todo
 //bullett hit effect -- [Done] - enemies flicker when hit particle effects may still be nessecary
@@ -146,7 +171,7 @@ MenuContain* Main;
 //-weapons
 //-powerups
 //-hud -- [Progress] - health bar and text
-//-menu -- [Progress] - buttons and method updated - need graphics
+//-menu -- [Progress] - uses one image with 3 buttin sprites
 //-level blocks
 //-particles
 //levels
@@ -163,6 +188,8 @@ MenuContain* Main;
 //text -- [Finished] text textures can now be created using the TextCreator class - may need work for different font sizes as only 38p is initialised
 //Enemy shooting
 //hold to jump higher -- [Finished] - timer allows you to jump at different heights
+//Menu class -- [Progress] - can create custom menus
+//load level -- [Progress] - need to figure out textures
 
 //bugs
 //left jump + space dont work together as well as being clunky -- [Fixed] - need to use wasd and space to prevent key conflict unique to laptop
@@ -184,6 +211,8 @@ MenuContain* Main;
 //enemy doesnt cause damage -- [Fixed] - inaccurate collision detection, now improved, improve bullet as well
 //2 hits at the same time -- [Fixed] - only take damage if not "hit"
 //texture leaks? no evidence so far but should happen -- [Fixed] - was actually not deleting mine blasts which out lasted the thread
+//reseting the player pos doesnt update the camera -- [Fixed] - the camera now updates to the edges if your at the edge
+//reseting the level doesnt reset the players health -- [Fixed] - just set it in the set pos function N.B. dont use setpos except for levels
 
 int main( int argc, char* args[] )
 {
@@ -235,6 +264,7 @@ int main( int argc, char* args[] )
 	}
 	//delete main menu
 	delete Main;
+	delete PauseMenu;
 	//delete map
 	delete map1;
 	//delete player
@@ -300,8 +330,43 @@ void Initialise()
 	{
 		*(posx+i) = -1;
 	}
+	//set up the menu
+	Main = new MenuContain();
+	PauseMenu = new MenuContain();
+	int w,h;
+	SDL_Texture* newgame = loader.loadTexturePNG("sprites/menu/buttons/NewGame_btn.png");
+	SDL_Texture* Exit = loader.loadTexturePNG("sprites/menu/buttons/Exit_btn.png");
+	SDL_Texture* Resume = loader.loadTexturePNG("sprites/menu/buttons/Resume_btn.png");
+	SDL_QueryTexture(newgame,NULL,NULL,&w,&h);
+	w /=3;
+	Main->addButton(newgame,(SCREEN_WIDTH-w)/(3*scalex),100,w,h,"newgame");
+	Main->addButton(Exit,(SCREEN_WIDTH-w)/(3*scalex),200,w,h,"Exit");
 
-	Main = new MenuContain(loader);
+	PauseMenu->addButton(Exit,(SCREEN_WIDTH-w)/(2*scalex),200,w,h,"Exit");
+	PauseMenu->addButton(Resume,(SCREEN_WIDTH-w)/(2*scalex),100,w,h,"Resume");
+	//set up the menu pretty stuff
+	Background = loader.loadTexturePNG("sprites/menu/sofa_720.png");
+	Foreground = loader.loadTexturePNG("sprites/menu/camera.png");
+	BackRect.x = 0;
+	BackRect.y = 0;
+	BackRect.w = SCREEN_WIDTH/scalex;
+	BackRect.h = SCREEN_HEIGHT/scaley;
+	ForeRect.x = 350;
+	ForeRect.y = 200;
+	SDL_QueryTexture(Foreground,NULL,NULL,&ForeRect.w,&ForeRect.h);
+	ForeRect.w /= 1.3*scalex;
+	ForeRect.h /= 1.3*scaley;
+	SDL_Color col;
+	col.a = 0x00;
+	col.r = 0x00;
+	col.g = 0x00;
+	col.b = 0x00;
+	TextTest = TextCreator.CreateText("version: 0.1.2", col);
+	TextRect.x = 0;
+	TextRect.y = 0;
+	SDL_QueryTexture(TextTest,NULL,NULL,&TextRect.w,&TextRect.h);
+	TextRect.h = TextRect.h/2;
+	TextRect.w = TextRect.w/2;
 }
 
 void Update()
@@ -321,39 +386,17 @@ void Update()
 	}
 	if(state == MainMenu)
 	{
-		Main->Update(quit);
+		if(Main->isPressed("newgame"))
+		{
+			state = Game;
+		}
+		if(Main->isPressed("Exit"))
+		{
+			quit = true;
+		}
 		if(state == Game)
 		{
-			map1 = loader.initMap(map1,"maps/map1.txt",tiles);
-			SDL_Texture* enemy1 = loader.loadTexturePNG("sprites/sad_onion.png");
-			SDL_Texture* Minetex = loader.loadTexturePNG("sprites/Mine.png");
-			SDL_Texture* Boom = loader.loadTexturePNG("Sprites/mineblast.png");
-			SDL_Texture* turret_tex = loader.loadTexturePNG("Sprites/turret_base.png");
-			SDL_Texture* turret_gun = loader.loadTexturePNG("Sprites/turret_gun.png");
-			for(int i = 0;i<map1->getRows();i++)
-			{
-				for(int j = 0; j<map1->getCols();j++)
-				{
-					if(map1->GetValue(i,j) == Enemy_T)
-					{
-						map1->setValue(i,j,0);
-						Sad_onion *enemyinst = new Sad_onion(enemy1,i,j);
-						Enemies.push_back(enemyinst);
-					}
-					if(map1->GetValue(i,j) == Mine_T)
-					{
-						map1->setValue(i,j,0);
-						Mine *mineinst = new Mine(Minetex,Boom,i,j);
-						Enemies.push_back(mineinst);
-					}
-					if(map1->GetValue(i,j) ==Turret_T)
-					{
-						map1->setValue(i,j,0);
-						Turret *turinst = new Turret(turret_tex,turret_gun,i,j);
-						Enemies.push_back(turinst);
-					}
-				}
-			}
+			loadLevel("maps/map1.txt");
 		}
 	}
 	if(state == Game)
@@ -418,17 +461,25 @@ void Update()
 		if(Escprev == true&&Esc == false)
 		{
 			state = Pause;
-			
+
 		}
 		Escprev = Esc;
 	}
 	if(state == Pause)
 	{
+		if(PauseMenu->isPressed("Exit"))
+		{
+			state = MainMenu;
+		}
+		if(PauseMenu->isPressed("Resume"))
+		{
+			state = Game;
+		}
 		//check if the escape key has been pressed
 		if(Escprev == true&&Esc == false)
 		{
 			state = Game;
-			
+
 		}
 		Escprev = Esc;
 	}
@@ -442,6 +493,9 @@ void Draw()
 	}
 	if(state == MainMenu)
 	{
+		SDL_RenderCopy(renderer, Background,NULL,&BackRect);
+		SDL_RenderCopy(renderer, Foreground,NULL,&ForeRect);
+		SDL_RenderCopy(renderer, TextTest,NULL,&TextRect);
 		Main->Draw();
 	}
 	if(state == Game || state == Pause)
@@ -459,6 +513,10 @@ void Draw()
 			(*it)->Draw();
 		}
 		hud->Draw();
+	}
+	if(state == Pause)
+	{
+		PauseMenu->Draw();
 	}
 }
 void UpdateEnemyBull()
@@ -503,4 +561,61 @@ void DrawEnemyBull()
 			SDL_RenderCopy(renderer, texture,NULL,&bulRect);
 		}
 	}
+}
+void loadLevel(string mapadd)
+{
+	//no leak but may want to do SDL_DESTROY_TEXTURES
+	tiles.clear();
+	for(vector<Enemy*>::iterator it = Enemies.begin(); it != Enemies.end(); ++it)
+	{
+		delete *it;
+	}
+		for(vector<Blast*>::iterator it = Blasts.begin(); it != Blasts.end();++it)
+	{
+		delete *it;
+	}
+	Blasts.clear();
+	Enemies.clear();
+
+	SDL_Texture* tile1 = loader.loadTexturePNG("tiles/footile.png");
+	SDL_Texture* tile2 = loader.loadTexturePNG("tiles/dirtgrass.png");
+	SDL_Texture* tile3 = loader.loadTexturePNG("tiles/glasstile.png");
+	SDL_Texture* tile4 = loader.loadTexturePNG("tiles/Spikes.png");
+
+	tiles.push_back(tile1);
+	tiles.push_back(tile2);
+	tiles.push_back(tile3);
+	tiles.push_back(tile4);
+	delete map1;
+	map1= loader.initMap(map1,mapadd,tiles);
+	SDL_Texture* enemy1 = loader.loadTexturePNG("sprites/sad_onion.png");
+	SDL_Texture* Minetex = loader.loadTexturePNG("sprites/Mine.png");
+	SDL_Texture* Boom = loader.loadTexturePNG("Sprites/mineblast.png");
+	SDL_Texture* turret_tex = loader.loadTexturePNG("Sprites/turret_base.png");
+	SDL_Texture* turret_gun = loader.loadTexturePNG("Sprites/turret_gun.png");
+	for(int i = 0;i<map1->getRows();i++)
+	{
+		for(int j = 0; j<map1->getCols();j++)
+		{
+			if(map1->GetValue(i,j) == Enemy_T)
+			{
+				map1->setValue(i,j,0);
+				Sad_onion *enemyinst = new Sad_onion(enemy1,i,j);
+				Enemies.push_back(enemyinst);
+			}
+			if(map1->GetValue(i,j) == Mine_T)
+			{
+				map1->setValue(i,j,0);
+				Mine *mineinst = new Mine(Minetex,Boom,i,j);
+				Enemies.push_back(mineinst);
+			}
+			if(map1->GetValue(i,j) ==Turret_T)
+			{
+				map1->setValue(i,j,0);
+				Turret *turinst = new Turret(turret_tex,turret_gun,i,j);
+				Enemies.push_back(turinst);
+			}
+		}
+	}
+	player->setpos(playerStartX,playerStartY);
 }

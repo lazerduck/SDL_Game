@@ -81,6 +81,8 @@ public:
 		{
 			ReadFile>>x;
 			ReadFile>>y;
+			ReadFile>>playerStartX;
+			ReadFile>>playerStartY;
 			data = new int[x*y];
 			int count  = 0;
 			while(!ReadFile.eof())

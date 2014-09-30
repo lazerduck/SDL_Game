@@ -39,9 +39,6 @@ public:
 		x = startX;
 		y = startY;
 		Sprite = sprite;
-		playerX = MIDX-(int)x;
-		playerY = MIDY-(int)y;
-		//SDL_QueryTexture(sprite,NULL,NULL,&dst.w,&dst.h);
 		dst.w = 30;
 		dst.h = 66;
 		dst.x = startX;
@@ -320,6 +317,13 @@ public:
 			return 1;
 		}
 		return 0;
+	}
+
+	void setpos(int X, int Y)
+	{
+		x= X;
+		y=Y;
+		health = 100;
 	}
 };
 

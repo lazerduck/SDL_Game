@@ -10,6 +10,7 @@ private:
 	bool source;
 public:
 	int ButtonState;
+	string Name;
 
 	gButton(void)
 	{
@@ -40,8 +41,9 @@ public:
 		source = false;
 	}
 
-	gButton(int x, int y, int w,int h, SDL_Texture* up,bool Source)
+	gButton(int x, int y, int w,int h, SDL_Texture* up,bool Source,string name)
 	{
+		Name = name;
 		DrawRect.x = x;
 		DrawRect.y = y;
 		DrawRect.w = w;
@@ -56,6 +58,7 @@ public:
 		SourceRect.x =0;
 		SourceRect.y = 0;
 	}
+	string getName(){return Name;}
 
 	void Draw()
 	{
