@@ -4,8 +4,6 @@ class TextInput
 private:
 	SDL_Texture* TextTex;
 	SDL_Rect dst;
-	int Max;
-	int Font;
 	DrawRect* rect;
 	bool active,prev;
 	SDL_Color col;
@@ -16,14 +14,13 @@ public:
 	{
 	}
 
-	TextInput(int x, int y, int charmax, int font)
+	TextInput(int x, int y, int width)
 	{
-		Max = charmax;
-		Font = font;
+
 		dst.x = x;
 		dst.y = y;
 		dst.h  = 50;
-		dst.w = 200;
+		dst.w = width;
 		active = false;
 		prev = false;
 		rect = new DrawRect(dst.x,dst.y,dst.h,dst.w);
@@ -31,7 +28,9 @@ public:
 		col.r = 0x00;
 		col.g = 0x00;
 		col.b = 0x00;
-		TextTex = TextCreator.CreateText("test",col);
+		text = "maps\\map1.txt";
+		TextTex = TextCreator.CreateText(text,col);
+		SDL_QueryTexture(TextTex,NULL,NULL, &dst.w,&dst.h);
 	}
 
 	bool hit(int x, int y)

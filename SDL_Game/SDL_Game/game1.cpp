@@ -25,19 +25,27 @@ using namespace std;
 float scalex = 1.2;
 float scaley = 1.2;
 
+
+
 //Screen dimension constants
 const int SCREEN_WIDTH = 854;
 const int SCREEN_HEIGHT = 480;
 
+float leveleditx = 0;
+float leveledity = 0;
+
 int MIDX = 640;
 int MIDY = 360;
 
-enum State {Splash,MainMenu,Game,GameOver,Pause,LevelEdit};
+enum State {Splash,MainMenu,Game,GameOver,Pause,LevelEdit,LevelEditPlay};
 State state;
 
 enum Tiles {Empty_T, Ground_T, Grass_T, Glass_T, Spike_T, Enemy_T, Mine_T, Turret_T};
 static const unsigned group1 = (1<<Ground_T)|(1<<Grass_T)|(1<<Spike_T);
 static const unsigned group2 = (1<<Empty_T)|(1<<Glass_T);
+
+
+string bpath;
 
 //input
 string input;
@@ -129,6 +137,7 @@ void UpdateEnemyBull();
 void DrawEnemyBull();
 
 void loadLevel(string mapadd);
+void loadLevelEditor(string mapadd);
 //classes
 IOcontrol io;
 ImgLoader loader;
@@ -150,6 +159,7 @@ Player* player;
 
 MenuContain* Main;
 MenuContain* PauseMenu;
+MenuContain* EditMenu;
 
 //main menu images
 SDL_Texture* Foreground;
@@ -197,6 +207,7 @@ TextInput* Tinput;
 //hold to jump higher -- [Finished] - timer allows you to jump at different heights
 //Menu class -- [Progress] - can create custom menus
 //load level -- [Progress] - need to figure out textures
+//Level editor -- [Progress] - need to create new and choose tile and save
 
 //bugs
 //left jump + space dont work together as well as being clunky -- [Fixed] - need to use wasd and space to prevent key conflict unique to laptop
@@ -223,6 +234,12 @@ TextInput* Tinput;
 
 int main( int argc, char* args[] )
 {
+	//get base path
+	char basePath[255] = "";
+	 _fullpath(basePath, NULL, sizeof(basePath));
+	 bpath = basePath;
+	cout<<bpath<<endl;
+
 	bool success = true;
 	//initialiser
 	Initialisation init;
@@ -273,6 +290,7 @@ int main( int argc, char* args[] )
 	//delete main menu
 	delete Main;
 	delete PauseMenu;
+	delete EditMenu;
 	//delete map
 	delete map1;
 	//delete player
@@ -343,6 +361,7 @@ void Initialise()
 	//set up the menu
 	Main = new MenuContain();
 	PauseMenu = new MenuContain();
+	EditMenu = new MenuContain();
 	int w,h;
 	SDL_Texture* newgame = loader.loadTexturePNG("sprites/menu/buttons/NewGame_btn.png");
 	SDL_Texture* Exit = loader.loadTexturePNG("sprites/menu/buttons/Exit_btn.png");
@@ -356,6 +375,13 @@ void Initialise()
 
 	PauseMenu->addButton(Exit,(SCREEN_WIDTH-w)/(2*scalex),200,w,h,"Exit");
 	PauseMenu->addButton(Resume,(SCREEN_WIDTH-w)/(2*scalex),100,w,h,"Resume");
+
+	SDL_Texture* loadbut = loader.loadTexturePNG("sprites/menu/buttons/load_btn.png");
+	SDL_QueryTexture(loadbut,NULL,NULL,&w,&h);
+	w /=3;
+
+	EditMenu->addButton(loadbut,(SCREEN_WIDTH+200)/(2*scalex),100,w,h,"load");
+
 	//set up the menu pretty stuff
 	Background = loader.loadTexturePNG("sprites/menu/sofa_720.png");
 	Foreground = loader.loadTexturePNG("sprites/menu/camera.png");
@@ -380,7 +406,21 @@ void Initialise()
 	TextRect.h = TextRect.h/2;
 	TextRect.w = TextRect.w/2;
 	//level editor
-	Tinput = new TextInput(100,100,50,12);
+	Tinput = new TextInput(100,100,300);
+}
+
+bool checkadd(string name)
+{
+	name = bpath+'\\'+name;
+	cout<<name<<endl;
+	ifstream f(name.c_str());
+    if (f.good()) {
+        f.close();
+        return true;
+    } else {
+        f.close();
+        return false;
+    }   
 }
 
 void Update()
@@ -501,11 +541,66 @@ void Update()
 	{
 		SDL_StartTextInput();
 		Tinput->Update();
-
+		if(EditMenu->isPressed("load"))
+		{
+			if(checkadd(Tinput->text))
+			{
+				loadLevelEditor(bpath+'\\'+Tinput->text);
+				cout<<"success"<<endl;
+				state = LevelEditPlay;
+			}
+		}
+		
 	}
 	else
 	{
 		SDL_StopTextInput();
+	}
+	if(state == LevelEditPlay)
+	{
+		float speed = 10;
+		camera.Update(leveleditx,leveledity,map1->getRows(),map1->getCols());
+		if(Up)
+		{
+			leveledity -= speed;
+			
+		}
+		if(Down)
+		{
+			leveledity += speed;
+			
+		}
+		if(Left)
+		{
+			leveleditx -= speed;
+			
+		}
+		if(Right)
+		{
+			leveleditx += speed;
+			
+		}
+		if(leveledity<(SCREEN_HEIGHT/2) - 40)
+		{
+			leveledity = (SCREEN_HEIGHT/2) - 40;
+		}
+		if(leveleditx<(SCREEN_WIDTH/2) - 40)
+		{
+			leveleditx = (SCREEN_WIDTH/2) - 40;
+		}
+
+		if(leveledity> map1->getCols()*40 - (SCREEN_HEIGHT/2)+40)
+		{
+			leveledity = map1->getCols()*40 -(SCREEN_HEIGHT/2) + 40;
+		}
+		if(leveleditx>map1->getRows()*40 -(SCREEN_WIDTH/2)+40)
+		{
+			leveleditx = map1->getRows()*40- (SCREEN_WIDTH/2)+40 ;
+		}
+		if(MouseState == SDL_BUTTON(1))
+		{
+			map1->setValue(((mouseY/scaley)+camera.y)/40,(((mouseX+40)/scalex)+camera.x-20)/40,1);
+		}
 	}
 }
 
@@ -545,6 +640,11 @@ void Draw()
 	if(state == LevelEdit)
 	{
 		Tinput->Draw();
+		EditMenu->Draw();
+	}
+	if(state == LevelEditPlay)
+	{
+		map1->Draw();
 	}
 }
 void UpdateEnemyBull()
@@ -646,4 +746,39 @@ void loadLevel(string mapadd)
 		}
 	}
 	player->setpos(playerStartX,playerStartY);
+}
+
+void loadLevelEditor(string mapadd)
+{
+	//no leak but may want to do SDL_DESTROY_TEXTURES
+	tiles.clear();
+	for(vector<Enemy*>::iterator it = Enemies.begin(); it != Enemies.end(); ++it)
+	{
+		delete *it;
+	}
+		for(vector<Blast*>::iterator it = Blasts.begin(); it != Blasts.end();++it)
+	{
+		delete *it;
+	}
+	Blasts.clear();
+	Enemies.clear();
+
+	SDL_Texture* tile1 = loader.loadTexturePNG("tiles/footile.png");
+	SDL_Texture* tile2 = loader.loadTexturePNG("tiles/dirtgrass.png");
+	SDL_Texture* tile3 = loader.loadTexturePNG("tiles/glasstile.png");
+	SDL_Texture* tile4 = loader.loadTexturePNG("tiles/Spikes.png");
+	SDL_Texture* tile5 = loader.loadTexturePNG("sprites/sad_onion.png");
+	SDL_Texture* tile6 = loader.loadTexturePNG("sprites/Mine.png");
+	SDL_Texture* tile7 = loader.loadTexturePNG("Sprites/turret_base.png");
+	
+
+	tiles.push_back(tile1);
+	tiles.push_back(tile2);
+	tiles.push_back(tile3);
+	tiles.push_back(tile4);
+	tiles.push_back(tile5);
+	tiles.push_back(tile6);
+	tiles.push_back(tile7);
+	delete map1;
+	map1= loader.initMap(map1,mapadd,tiles);
 }

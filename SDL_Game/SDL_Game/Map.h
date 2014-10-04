@@ -142,6 +142,10 @@ public:
 	}
 	void setValue(int i, int j,int val)
 	{
+		if(i < 0 || j < 0||i>rows || j > columns)
+		{
+			return;
+		}
 		data[j+(columns*i)] = val;
 	}
 
