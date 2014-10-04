@@ -60,6 +60,26 @@ public:
 				{
 					Esc = true;
 				}
+
+				//Handle backspace
+				if( e->key.keysym.sym == SDLK_BACKSPACE && input.length() > 0 )
+				{
+					//lop off character
+					input.pop_back();
+					updateinput = true;
+				}
+				//Handle copy
+				else if( e->key.keysym.sym == SDLK_c && SDL_GetModState() & KMOD_CTRL )
+				{
+					SDL_SetClipboardText( input.c_str() );
+					updateinput = true;
+				}
+				//Handle paste
+				else if( e->key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL )
+				{
+					input = SDL_GetClipboardText();
+					updateinput = true;
+				}
 			}
 			if(e->type == SDL_KEYUP)
 			{
@@ -78,8 +98,6 @@ public:
 				{
 					Up = false;
 				}
-
-
 				if(e->key.keysym.sym == SDLK_DOWN||e->key.keysym.sym == SDLK_s)
 				{
 					Down = false;
@@ -91,6 +109,21 @@ public:
 				if(e->key.keysym.sym == SDLK_ESCAPE)
 				{
 					Esc = false;
+				}
+			}
+			if( e->type == SDL_KEYDOWN )
+			{
+				
+			}
+			//Special text input event
+			else if( e->type == SDL_TEXTINPUT )
+			{
+				//Not copy or pasting
+				if( !( ( e->text.text[ 0 ] == 'c' || e->text.text[ 0 ] == 'C' ) && ( e->text.text[ 0 ] == 'v' || e->text.text[ 0 ] == 'V' ) && SDL_GetModState() & KMOD_CTRL ) )
+				{
+					//Append character
+					input += e->text.text;
+					updateinput = true;
 				}
 			}
 		}

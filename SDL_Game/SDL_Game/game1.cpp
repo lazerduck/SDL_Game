@@ -13,9 +13,7 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <stdio.h>
-#define CRTDBG_MAP_ALLOC
 #include <stdlib.h>
-#include <crtdbg.h>
 #include <vector>
 #include <fstream>
 #include <sstream>
@@ -34,12 +32,16 @@ const int SCREEN_HEIGHT = 480;
 int MIDX = 640;
 int MIDY = 360;
 
-enum State {Splash,MainMenu,Game,GameOver,Pause};
+enum State {Splash,MainMenu,Game,GameOver,Pause,LevelEdit};
 State state;
 
 enum Tiles {Empty_T, Ground_T, Grass_T, Glass_T, Spike_T, Enemy_T, Mine_T, Turret_T};
 static const unsigned group1 = (1<<Ground_T)|(1<<Grass_T)|(1<<Spike_T);
 static const unsigned group2 = (1<<Empty_T)|(1<<Glass_T);
+
+//input
+string input;
+bool updateinput = false;
 
 //The window
 SDL_Window* window = NULL;
@@ -79,6 +81,8 @@ bool Escprev;
 Camera camera;
 #include "TextCont.h"
 TextCont TextCreator;
+#include "DrawRect.h"
+#include "TextInput.h"
 
 //classes
 #include "Map.h"
@@ -158,10 +162,13 @@ SDL_Rect TextRect;
 
 SDL_Color col;
 
+//level editor
+TextInput* Tinput;
+
 //todo
 //bullett hit effect -- [Done] - enemies flicker when hit particle effects may still be nessecary
 //enemies
-//-flying -- [progress] - none
+//-flying
 //-mines -- [Done] - Explode and blast affect other mines and player
 //-spikes -- [Done] - spikes and new map improvements as well as load area
 //-turrets -- [Done] - Hits player, no sight check
@@ -216,7 +223,6 @@ SDL_Color col;
 
 int main( int argc, char* args[] )
 {
-	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	bool success = true;
 	//initialiser
 	Initialisation init;
@@ -225,16 +231,17 @@ int main( int argc, char* args[] )
 	success = init.start();
 
 	Initialise();
+	
 	if(success)
 	{	
 		int counted = 0;
 		float start = SDL_GetTicks();
 		//set initial game state
-		state = Splash;
+		state = LevelEdit;
 
 		//<game loop>
 		while(!quit)
-		{
+		{			
 			//get framrate
 			if(SDL_GetTicks() - start > 1000)
 			{
@@ -245,8 +252,9 @@ int main( int argc, char* args[] )
 			//get deltatime
 			DeltaTime = (SDL_GetTicks() - PrevTicks)/slowTime;
 			PrevTicks = SDL_GetTicks();
-
+			SDL_SetRenderDrawColor( renderer, 0x00, 0xFF, 0xFF, 0xFF );
 			SDL_RenderClear( renderer );
+			SDL_SetRenderDrawColor( renderer, 0xFF, 0xFF, 0xFF, 0x00 );
 			//timer update
 			for(vector<gTimer*>::iterator it = Timers.begin(); it!= Timers.end(); ++it)
 			{
@@ -270,6 +278,8 @@ int main( int argc, char* args[] )
 	//delete player
 	delete player;
 	delete weapon;
+	//level editor
+	delete Tinput;
 	//delete timers
 	for(vector<gTimer*>::iterator it = Timers.begin(); it != Timers.end(); ++it)
 	{
@@ -336,11 +346,13 @@ void Initialise()
 	int w,h;
 	SDL_Texture* newgame = loader.loadTexturePNG("sprites/menu/buttons/NewGame_btn.png");
 	SDL_Texture* Exit = loader.loadTexturePNG("sprites/menu/buttons/Exit_btn.png");
+	SDL_Texture* LevelEdit = loader.loadTexturePNG("sprites/menu/buttons/LevelEditor_btn.png");
 	SDL_Texture* Resume = loader.loadTexturePNG("sprites/menu/buttons/Resume_btn.png");
 	SDL_QueryTexture(newgame,NULL,NULL,&w,&h);
 	w /=3;
-	Main->addButton(newgame,(SCREEN_WIDTH-w)/(3*scalex),100,w,h,"newgame");
-	Main->addButton(Exit,(SCREEN_WIDTH-w)/(3*scalex),200,w,h,"Exit");
+	Main->addButton(newgame,(SCREEN_WIDTH-w)/(3*scalex),70,w,h,"newgame");
+	Main->addButton(LevelEdit,(SCREEN_WIDTH-w)/(3*scalex),150,w,h,"Leveledit");
+	Main->addButton(Exit,(SCREEN_WIDTH-w)/(3*scalex),230,w,h,"Exit");
 
 	PauseMenu->addButton(Exit,(SCREEN_WIDTH-w)/(2*scalex),200,w,h,"Exit");
 	PauseMenu->addButton(Resume,(SCREEN_WIDTH-w)/(2*scalex),100,w,h,"Resume");
@@ -367,6 +379,8 @@ void Initialise()
 	SDL_QueryTexture(TextTest,NULL,NULL,&TextRect.w,&TextRect.h);
 	TextRect.h = TextRect.h/2;
 	TextRect.w = TextRect.w/2;
+	//level editor
+	Tinput = new TextInput(100,100,50,12);
 }
 
 void Update()
@@ -483,6 +497,16 @@ void Update()
 		}
 		Escprev = Esc;
 	}
+	if(state == LevelEdit)
+	{
+		SDL_StartTextInput();
+		Tinput->Update();
+
+	}
+	else
+	{
+		SDL_StopTextInput();
+	}
 }
 
 void Draw()
@@ -517,6 +541,10 @@ void Draw()
 	if(state == Pause)
 	{
 		PauseMenu->Draw();
+	}
+	if(state == LevelEdit)
+	{
+		Tinput->Draw();
 	}
 }
 void UpdateEnemyBull()
