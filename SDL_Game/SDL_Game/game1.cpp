@@ -41,6 +41,10 @@ enum State {Splash,MainMenu,Game,GameOver,Pause,LevelEdit,LevelEditPlay};
 State state;
 
 enum Tiles {Empty_T, Ground_T, Grass_T, Glass_T, Spike_T, Enemy_T, Mine_T, Turret_T};
+Tiles tile;
+
+
+
 static const unsigned group1 = (1<<Ground_T)|(1<<Grass_T)|(1<<Spike_T);
 static const unsigned group2 = (1<<Empty_T)|(1<<Glass_T);
 
@@ -141,6 +145,17 @@ void loadLevelEditor(string mapadd);
 //classes
 IOcontrol io;
 ImgLoader loader;
+
+//load the textures
+
+SDL_Texture* tile1;
+SDL_Texture* tile2;
+SDL_Texture* tile3;
+SDL_Texture* tile4;
+SDL_Texture* tile5;
+SDL_Texture* tile6;
+SDL_Texture* tile7;
+
 //variables splash
 SDL_Texture* texture = NULL;
 vector<SDL_Texture*> TextureVect;
@@ -174,6 +189,9 @@ SDL_Color col;
 
 //level editor
 TextInput* Tinput;
+
+SDL_Rect editorSelect;
+DrawRect* menurect;
 
 //todo
 //bullett hit effect -- [Done] - enemies flicker when hit particle effects may still be nessecary
@@ -236,8 +254,8 @@ int main( int argc, char* args[] )
 {
 	//get base path
 	char basePath[255] = "";
-	 _fullpath(basePath, NULL, sizeof(basePath));
-	 bpath = basePath;
+	_fullpath(basePath, NULL, sizeof(basePath));
+	bpath = basePath;
 	cout<<bpath<<endl;
 
 	bool success = true;
@@ -245,16 +263,16 @@ int main( int argc, char* args[] )
 	Initialisation init;
 	camera.y = 40;
 
-	success = init.start();
+	success = init.start(); 
 
 	Initialise();
-	
+
 	if(success)
 	{	
 		int counted = 0;
 		float start = SDL_GetTicks();
 		//set initial game state
-		state = LevelEdit;
+		state = Splash;// LevelEdit;
 
 		//<game loop>
 		while(!quit)
@@ -298,6 +316,15 @@ int main( int argc, char* args[] )
 	delete weapon;
 	//level editor
 	delete Tinput;
+	//delete textures
+	SDL_DestroyTexture(tile1);
+	SDL_DestroyTexture(tile2);
+	SDL_DestroyTexture(tile3);
+	SDL_DestroyTexture(tile4);
+	SDL_DestroyTexture(tile5);
+	SDL_DestroyTexture(tile6);
+	SDL_DestroyTexture(tile7);
+	delete menurect;
 	//delete timers
 	for(vector<gTimer*>::iterator it = Timers.begin(); it != Timers.end(); ++it)
 	{
@@ -322,6 +349,17 @@ int main( int argc, char* args[] )
 
 void Initialise()
 {
+	//load the tile textures
+	tile1 = loader.loadTexturePNG("tiles/footile.png");
+	tile2 = loader.loadTexturePNG("tiles/dirtgrass.png");
+	tile3 = loader.loadTexturePNG("tiles/glasstile.png");
+	tile4 = loader.loadTexturePNG("tiles/Spikes.png");
+	tile5 = loader.loadTexturePNG("sprites/sad_onion.png");
+	tile6 = loader.loadTexturePNG("sprites/Mine.png");
+	tile7 = loader.loadTexturePNG("Sprites/turret_base.png");
+
+	tile = Empty_T;
+
 	T1 = new gTimer;
 	T2 = new gTimer;
 	Timers.push_back(T1);
@@ -407,6 +445,8 @@ void Initialise()
 	TextRect.w = TextRect.w/2;
 	//level editor
 	Tinput = new TextInput(100,100,300);
+	menurect = new DrawRect( 0, 0, 40, SCREEN_WIDTH);
+
 }
 
 bool checkadd(string name)
@@ -414,13 +454,13 @@ bool checkadd(string name)
 	name = bpath+'\\'+name;
 	cout<<name<<endl;
 	ifstream f(name.c_str());
-    if (f.good()) {
-        f.close();
-        return true;
-    } else {
-        f.close();
-        return false;
-    }   
+	if (f.good()) {
+		f.close();
+		return true;
+	} else {
+		f.close();
+		return false;
+	}   
 }
 
 void Update()
@@ -448,6 +488,11 @@ void Update()
 		{
 			quit = true;
 		}
+		if(Main->isPressed("Leveledit"))
+		{
+			state = LevelEdit;
+		}
+
 		if(state == Game)
 		{
 			loadLevel("maps/map1.txt");
@@ -550,7 +595,7 @@ void Update()
 				state = LevelEditPlay;
 			}
 		}
-		
+
 	}
 	else
 	{
@@ -559,30 +604,30 @@ void Update()
 	if(state == LevelEditPlay)
 	{
 		float speed = 10;
-		camera.Update(leveleditx,leveledity,map1->getRows(),map1->getCols());
+		camera.Update(leveleditx,leveledity,map1->getRows(),map1->getCols(),true);
 		if(Up)
 		{
 			leveledity -= speed;
-			
+
 		}
 		if(Down)
 		{
 			leveledity += speed;
-			
+
 		}
 		if(Left)
 		{
 			leveleditx -= speed;
-			
+
 		}
 		if(Right)
 		{
 			leveleditx += speed;
-			
+
 		}
-		if(leveledity<(SCREEN_HEIGHT/2) - 40)
+		if(leveledity<(SCREEN_HEIGHT/2) - 80)
 		{
-			leveledity = (SCREEN_HEIGHT/2) - 40;
+			leveledity = (SCREEN_HEIGHT/2) - 80;
 		}
 		if(leveleditx<(SCREEN_WIDTH/2) - 40)
 		{
@@ -599,7 +644,22 @@ void Update()
 		}
 		if(MouseState == SDL_BUTTON(1))
 		{
-			map1->setValue(((mouseY/scaley)+camera.y)/40,(((mouseX+40)/scalex)+camera.x-20)/40,1);
+			if(mouseY > 40)
+			{
+				int resy = ((mouseY/scaley)+camera.y)/40;
+				int resx = (((mouseX)/scalex)+camera.x)/40;
+				if(tile == 0)
+				{
+					if((resy != 0 && resy != map1->getRows()) ^ (resx != 0 && resx != map1->getCols()))
+					{
+						map1->setValue(resy,resx,tile);
+					}
+				}
+				else
+				{
+					map1->setValue(resy,resx,tile);
+				}
+			}
 		}
 	}
 }
@@ -645,6 +705,7 @@ void Draw()
 	if(state == LevelEditPlay)
 	{
 		map1->Draw();
+		menurect->Draw();
 	}
 }
 void UpdateEnemyBull()
@@ -698,17 +759,12 @@ void loadLevel(string mapadd)
 	{
 		delete *it;
 	}
-		for(vector<Blast*>::iterator it = Blasts.begin(); it != Blasts.end();++it)
+	for(vector<Blast*>::iterator it = Blasts.begin(); it != Blasts.end();++it)
 	{
 		delete *it;
 	}
 	Blasts.clear();
 	Enemies.clear();
-
-	SDL_Texture* tile1 = loader.loadTexturePNG("tiles/footile.png");
-	SDL_Texture* tile2 = loader.loadTexturePNG("tiles/dirtgrass.png");
-	SDL_Texture* tile3 = loader.loadTexturePNG("tiles/glasstile.png");
-	SDL_Texture* tile4 = loader.loadTexturePNG("tiles/Spikes.png");
 
 	tiles.push_back(tile1);
 	tiles.push_back(tile2);
@@ -756,21 +812,12 @@ void loadLevelEditor(string mapadd)
 	{
 		delete *it;
 	}
-		for(vector<Blast*>::iterator it = Blasts.begin(); it != Blasts.end();++it)
+	for(vector<Blast*>::iterator it = Blasts.begin(); it != Blasts.end();++it)
 	{
 		delete *it;
 	}
 	Blasts.clear();
 	Enemies.clear();
-
-	SDL_Texture* tile1 = loader.loadTexturePNG("tiles/footile.png");
-	SDL_Texture* tile2 = loader.loadTexturePNG("tiles/dirtgrass.png");
-	SDL_Texture* tile3 = loader.loadTexturePNG("tiles/glasstile.png");
-	SDL_Texture* tile4 = loader.loadTexturePNG("tiles/Spikes.png");
-	SDL_Texture* tile5 = loader.loadTexturePNG("sprites/sad_onion.png");
-	SDL_Texture* tile6 = loader.loadTexturePNG("sprites/Mine.png");
-	SDL_Texture* tile7 = loader.loadTexturePNG("Sprites/turret_base.png");
-	
 
 	tiles.push_back(tile1);
 	tiles.push_back(tile2);

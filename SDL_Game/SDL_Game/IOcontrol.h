@@ -80,6 +80,39 @@ public:
 					input = SDL_GetClipboardText();
 					updateinput = true;
 				}
+				//tiles swaps Ground_T, Grass_T, Glass_T, Spike_T, Enemy_T, Mine_T, Turret_T
+				if(e->key.keysym.sym == SDLK_1)
+				{
+					tile = Ground_T;
+				}
+				if(e->key.keysym.sym == SDLK_2)
+				{
+					tile = Grass_T;
+				}
+				if(e->key.keysym.sym == SDLK_3)
+				{
+					tile = Glass_T;
+				}
+				if(e->key.keysym.sym == SDLK_4)
+				{
+					tile = Spike_T;
+				}
+				if(e->key.keysym.sym == SDLK_5)
+				{
+					tile = Enemy_T;
+				}
+				if(e->key.keysym.sym == SDLK_6)
+				{
+					tile = Mine_T;
+				}
+				if(e->key.keysym.sym == SDLK_7)
+				{
+					tile = Turret_T;
+				}
+				if(e->key.keysym.sym == SDLK_0)
+				{
+					tile = Empty_T;
+				}
 			}
 			if(e->type == SDL_KEYUP)
 			{

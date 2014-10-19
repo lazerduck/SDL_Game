@@ -151,10 +151,7 @@ public:
 
 	~Map(void)
 	{
-		for(vector<SDL_Texture*>::iterator it = Tiles.begin();it!=Tiles.end();++it)
-		{
-			SDL_DestroyTexture(*it);
-		}
+		
 		delete data;
 	}
 };
