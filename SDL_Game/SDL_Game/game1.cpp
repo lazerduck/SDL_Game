@@ -50,6 +50,7 @@ static const unsigned group2 = (1<<Empty_T)|(1<<Glass_T);
 
 
 string bpath;
+string savePath;
 
 //input
 string input;
@@ -122,7 +123,6 @@ Hud* hud;
 //enemy holder
 vector<Enemy*> Enemies;
 
-
 #include "Weapon.h"
 
 //timers
@@ -155,6 +155,7 @@ SDL_Texture* tile4;
 SDL_Texture* tile5;
 SDL_Texture* tile6;
 SDL_Texture* tile7;
+SDL_Texture* playerSprite;
 
 //variables splash
 SDL_Texture* texture = NULL;
@@ -168,7 +169,12 @@ SDL_Event e;
 SDL_Rect pos;
 
 Map* map1;
+//map textures
 vector<SDL_Texture*> tiles;
+
+//editor gui
+#include "Editor_gui.h"
+Editor_gui* editorGUI;
 
 Player* player;
 
@@ -189,6 +195,8 @@ SDL_Color col;
 
 //level editor
 TextInput* Tinput;
+TextInput* Xinput;
+TextInput* Yinput;
 
 SDL_Rect editorSelect;
 DrawRect* menurect;
@@ -225,7 +233,7 @@ DrawRect* menurect;
 //hold to jump higher -- [Finished] - timer allows you to jump at different heights
 //Menu class -- [Progress] - can create custom menus
 //load level -- [Progress] - need to figure out textures
-//Level editor -- [Progress] - need to create new and choose tile and save
+//Level editor -- [Progress] - added saving, need testing, exit to main and new level
 
 //bugs
 //left jump + space dont work together as well as being clunky -- [Fixed] - need to use wasd and space to prevent key conflict unique to laptop
@@ -249,6 +257,7 @@ DrawRect* menurect;
 //texture leaks? no evidence so far but should happen -- [Fixed] - was actually not deleting mine blasts which out lasted the thread
 //reseting the player pos doesnt update the camera -- [Fixed] - the camera now updates to the edges if your at the edge
 //reseting the level doesnt reset the players health -- [Fixed] - just set it in the set pos function N.B. dont use setpos except for levels
+//tiles and enemies dont show on maps with different rows and cols -- [progress] - narrowed it down to the load level
 
 int main( int argc, char* args[] )
 {
@@ -315,7 +324,8 @@ int main( int argc, char* args[] )
 	delete player;
 	delete weapon;
 	//level editor
-	delete Tinput;
+	delete editorGUI;
+	delete Tinput; delete Xinput; delete Yinput;
 	//delete textures
 	SDL_DestroyTexture(tile1);
 	SDL_DestroyTexture(tile2);
@@ -357,7 +367,7 @@ void Initialise()
 	tile5 = loader.loadTexturePNG("sprites/sad_onion.png");
 	tile6 = loader.loadTexturePNG("sprites/Mine.png");
 	tile7 = loader.loadTexturePNG("Sprites/turret_base.png");
-
+	playerSprite = loader.loadTexturePNG("sprites/ashensStill.png");
 	tile = Empty_T;
 
 	T1 = new gTimer;
@@ -372,14 +382,6 @@ void Initialise()
 	pos.y=SCREEN_HEIGHT/2 -150;
 	pos.w=300;
 	pos.h = 300;
-
-	SDL_Texture* tile1 = loader.loadTexturePNG("tiles/footile.png");
-	SDL_Texture* tile2 = loader.loadTexturePNG("tiles/dirtgrass.png");
-	SDL_Texture* tile3 = loader.loadTexturePNG("tiles/glasstile.png");
-	SDL_Texture* tile4 = loader.loadTexturePNG("tiles/Spikes.png");
-	SDL_Texture* enemy1 = loader.loadTexturePNG("sprites/sad_onion.png");
-
-	TextureVect.push_back(enemy1);
 
 	tiles.push_back(tile1);
 	tiles.push_back(tile2);
@@ -415,10 +417,14 @@ void Initialise()
 	PauseMenu->addButton(Resume,(SCREEN_WIDTH-w)/(2*scalex),100,w,h,"Resume");
 
 	SDL_Texture* loadbut = loader.loadTexturePNG("sprites/menu/buttons/load_btn.png");
+	SDL_Texture* newbut = loader.loadTexturePNG("sprites/menu/buttons/new_btn.png");
+	SDL_Texture* exitbut = loader.loadTexturePNG("sprites/menu/buttons/exitsmall_btn.png");
 	SDL_QueryTexture(loadbut,NULL,NULL,&w,&h);
 	w /=3;
 
 	EditMenu->addButton(loadbut,(SCREEN_WIDTH+200)/(2*scalex),100,w,h,"load");
+	EditMenu->addButton(newbut,(SCREEN_WIDTH+200)/(2*scalex),200,w,h,"new");
+	EditMenu->addButton(exitbut,(SCREEN_WIDTH+200)/(2*scalex),300,w,h,"exit");
 
 	//set up the menu pretty stuff
 	Background = loader.loadTexturePNG("sprites/menu/sofa_720.png");
@@ -444,8 +450,12 @@ void Initialise()
 	TextRect.h = TextRect.h/2;
 	TextRect.w = TextRect.w/2;
 	//level editor
-	Tinput = new TextInput(100,100,300);
-	menurect = new DrawRect( 0, 0, 40, SCREEN_WIDTH);
+	Tinput = new TextInput(100,100,300,"maps\\map1.txt");
+	Xinput = new TextInput(100,160,100,"40");
+	Yinput = new TextInput(100,220,100,"40");
+	menurect = new DrawRect( 0, 0, 50, SCREEN_WIDTH);
+
+	editorGUI = new Editor_gui(loader.loadTexturePNG("sprites/selector.png"),loader.loadTexturePNG("sprites/menu/buttons/test_btn.png"),loader.loadTexturePNG("sprites/menu/buttons/save_btn.png"),exitbut);
 
 }
 
@@ -495,7 +505,7 @@ void Update()
 
 		if(state == Game)
 		{
-			loadLevel("maps/map1.txt");
+			loadLevel("maps/map1");
 		}
 	}
 	if(state == Game)
@@ -568,7 +578,16 @@ void Update()
 	{
 		if(PauseMenu->isPressed("Exit"))
 		{
-			state = MainMenu;
+			if(editorGUI->StartTest())
+			{
+				loadLevelEditor(editorGUI->GetAddress());
+				state = LevelEditPlay;
+				editorGUI->EndTest();
+			}
+			else
+			{
+				state = MainMenu;
+			}
 		}
 		if(PauseMenu->isPressed("Resume"))
 		{
@@ -586,6 +605,8 @@ void Update()
 	{
 		SDL_StartTextInput();
 		Tinput->Update();
+		Xinput->Update();
+		Yinput->Update();
 		if(EditMenu->isPressed("load"))
 		{
 			if(checkadd(Tinput->text))
@@ -593,13 +614,49 @@ void Update()
 				loadLevelEditor(bpath+'\\'+Tinput->text);
 				cout<<"success"<<endl;
 				state = LevelEditPlay;
+				savePath = bpath+'\\'+Tinput->text;
+				editorGUI->setMapAddress(bpath+'\\'+Tinput->text);
 			}
 		}
-
+		if(EditMenu->isPressed("new"))
+		{
+			int x = Xinput->getInt();
+			int y = Yinput->getInt();
+			int *data = new int[x*y];
+			cout<<x*y<<endl;
+			for(int i = 0; i<y;i++)
+			{
+				for(int j = 0;j<x;j++)
+				{
+					if (i==0 || i==y-1 || j==0 || j==x-1)
+					{
+						*(data+i*x+j) = 1;
+					}
+					else
+					{
+						*(data+i*x+j) = 0;
+					}
+				}
+			}
+			delete map1;
+			map1 = new Map(y,x, data);
+			savePath = bpath+'\\'+Tinput->text;
+			playerStartX = 40;
+			playerStartY = 80;
+			map1->save();
+			loadLevelEditor(savePath);
+			cout<<"success"<<endl;
+			state = LevelEditPlay;
+			editorGUI->setMapAddress(bpath+'\\'+Tinput->text);
+		}
 	}
 	else
 	{
 		SDL_StopTextInput();
+	}
+	if(EditMenu->isPressed("exit"))
+	{
+		state = MainMenu;
 	}
 	if(state == LevelEditPlay)
 	{
@@ -634,23 +691,26 @@ void Update()
 			leveleditx = (SCREEN_WIDTH/2) - 40;
 		}
 
-		if(leveledity> map1->getCols()*40 - (SCREEN_HEIGHT/2)+40)
+		if(leveledity> map1->getRows()*40 - (SCREEN_HEIGHT/2)+40)
 		{
-			leveledity = map1->getCols()*40 -(SCREEN_HEIGHT/2) + 40;
+			leveledity = map1->getRows()*40 -(SCREEN_HEIGHT/2) + 40;
 		}
-		if(leveleditx>map1->getRows()*40 -(SCREEN_WIDTH/2)+40)
+		if(leveleditx>map1->getCols()*40 -(SCREEN_WIDTH/2)+40)
 		{
-			leveleditx = map1->getRows()*40- (SCREEN_WIDTH/2)+40 ;
+			leveleditx = map1->getCols()*40- (SCREEN_WIDTH/2)+40 ;
 		}
+		//tile rect, tile selector
+		editorGUI->Update();
+		if(!editorGUI->setPlayer)
 		if(MouseState == SDL_BUTTON(1))
 		{
-			if(mouseY > 40)
+			if(mouseY > 50)
 			{
 				int resy = ((mouseY/scaley)+camera.y)/40;
 				int resx = (((mouseX)/scalex)+camera.x)/40;
-				if(tile == 0)
+				if(tile != 1 && tile != 2)
 				{
-					if((resy != 0 && resy != map1->getRows()) ^ (resx != 0 && resx != map1->getCols()))
+					if(resy != 0 && resx != 0 && resx != map1->getCols()-1&&resy != map1->getRows()-1)
 					{
 						map1->setValue(resy,resx,tile);
 					}
@@ -660,6 +720,12 @@ void Update()
 					map1->setValue(resy,resx,tile);
 				}
 			}
+		}
+		
+		if(editorGUI->StartTest())
+		{
+			loadLevel(editorGUI->GetAddress());
+			state = Game;
 		}
 	}
 }
@@ -700,12 +766,15 @@ void Draw()
 	if(state == LevelEdit)
 	{
 		Tinput->Draw();
+		Xinput->Draw();
+		Yinput->Draw();
 		EditMenu->Draw();
 	}
 	if(state == LevelEditPlay)
 	{
 		map1->Draw();
 		menurect->Draw();
+		editorGUI->Draw();
 	}
 }
 void UpdateEnemyBull()

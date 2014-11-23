@@ -14,7 +14,7 @@ public:
 	{
 	}
 
-	TextInput(int x, int y, int width)
+	TextInput(int x, int y, int width,string startmsg)
 	{
 
 		dst.x = x;
@@ -28,7 +28,7 @@ public:
 		col.r = 0x00;
 		col.g = 0x00;
 		col.b = 0x00;
-		text = "maps\\map1.txt";
+		text = startmsg;
 		TextTex = TextCreator.CreateText(text,col);
 		SDL_QueryTexture(TextTex,NULL,NULL, &dst.w,&dst.h);
 	}
@@ -53,6 +53,32 @@ public:
 			hit = false;
 		}
 		return hit;
+	}
+
+	int getInt()
+	{
+		vector<int> digits;
+		int output = 0;
+		for(int i =0; i <text.length();i++)
+		{
+			char c = text[i];
+			c -= '0';
+			if(c>=0&&c<=9)
+			{
+				digits.push_back(c);
+			}
+			else
+			{
+				return -1;
+			}
+		}
+		int unit = 0;
+		for( vector<int>::reverse_iterator it = digits.rbegin(); it != digits.rend(); ++it)
+		{
+			output += *it * pow((int)10,(float)unit);
+			unit++;
+		}
+		return output;
 	}
 
 	void Update()

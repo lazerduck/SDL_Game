@@ -9,9 +9,12 @@ private:
 
 	int* data;
 
+	
+
 	vector<SDL_Texture*> Tiles;
 	SDL_Rect DrawRect;
 public:
+	string address;
 
 	Map(void)
 	{
@@ -148,7 +151,28 @@ public:
 		}
 		data[j+(columns*i)] = val;
 	}
-
+	bool save()
+	{
+		ofstream saveFile;
+		saveFile.open(savePath);
+		saveFile<<rows<<" ";
+		saveFile<<columns<<" ";
+		saveFile<<playerStartX<<" ";
+		saveFile<<playerStartY<<" "<<"\n";
+		int count = 0;
+		for(int i = 0; i<size;i++)
+		{
+			saveFile<<data[i]<<" ";
+			count++;
+			if(count == columns)
+			{
+				saveFile<<"\n";
+				count = 0;
+			}
+		}
+		saveFile.close();
+		return true;
+	}
 	~Map(void)
 	{
 		

@@ -79,8 +79,8 @@ public:
 		int* data;
 		if(ReadFile.is_open())
 		{
-			ReadFile>>x;
 			ReadFile>>y;
+			ReadFile>>x;
 			ReadFile>>playerStartX;
 			ReadFile>>playerStartY;
 			data = new int[x*y];

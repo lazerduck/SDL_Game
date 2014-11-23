@@ -73,6 +73,7 @@
     <ClInclude Include="Blast.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DrawRect.h" />
+    <ClInclude Include="Editor_gui.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="gButton.h" />
     <ClInclude Include="gTimer.h" />

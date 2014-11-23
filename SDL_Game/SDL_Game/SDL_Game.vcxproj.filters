@@ -80,5 +80,8 @@
     <ClInclude Include="DrawRect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Editor_gui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
