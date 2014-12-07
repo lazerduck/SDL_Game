@@ -19,7 +19,6 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
-#include <vld.h> 
 
 using namespace std;
 float scalex = 1.2;
@@ -846,25 +845,25 @@ void loadLevel(string mapadd)
 	SDL_Texture* Boom = loader.loadTexturePNG("Sprites/mineblast.png");
 	SDL_Texture* turret_tex = loader.loadTexturePNG("Sprites/turret_base.png");
 	SDL_Texture* turret_gun = loader.loadTexturePNG("Sprites/turret_gun.png");
-	for(int i = 0;i<map1->getRows();i++)
+	for(int i = 0;i<map1->getCols();i++)
 	{
-		for(int j = 0; j<map1->getCols();j++)
+		for(int j = 0; j<map1->getRows();j++)
 		{
 			if(map1->GetValue(i,j) == Enemy_T)
 			{
-				map1->setValue(i,j,0);
+				map1->setValue(j,i,0);
 				Sad_onion *enemyinst = new Sad_onion(enemy1,i,j);
 				Enemies.push_back(enemyinst);
 			}
 			if(map1->GetValue(i,j) == Mine_T)
 			{
-				map1->setValue(i,j,0);
+				map1->setValue(j,i,0);
 				Mine *mineinst = new Mine(Minetex,Boom,i,j);
 				Enemies.push_back(mineinst);
 			}
 			if(map1->GetValue(i,j) ==Turret_T)
 			{
-				map1->setValue(i,j,0);
+				map1->setValue(j,i,0);
 				Turret *turinst = new Turret(turret_tex,turret_gun,i,j);
 				Enemies.push_back(turinst);
 			}
