@@ -84,6 +84,7 @@
     <ClInclude Include="Map.h" />
     <ClInclude Include="MenuContain.h" />
     <ClInclude Include="Mine.h" />
+    <ClInclude Include="Particle.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Sad_onion.h" />
     <ClInclude Include="TextCont.h" />

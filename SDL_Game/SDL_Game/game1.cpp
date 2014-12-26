@@ -19,6 +19,7 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
+#include <random>
 
 using namespace std;
 float scalex = 1.2;
@@ -29,6 +30,8 @@ float scaley = 1.2;
 //Screen dimension constants
 const int SCREEN_WIDTH = 854;
 const int SCREEN_HEIGHT = 480;
+
+#pragma region vars
 
 float leveleditx = 0;
 float leveledity = 0;
@@ -95,6 +98,9 @@ Camera camera;
 TextCont TextCreator;
 #include "DrawRect.h"
 #include "TextInput.h"
+#include "Particle.h"
+
+Particle *particle;
 
 //classes
 #include "Map.h"
@@ -200,20 +206,22 @@ TextInput* Yinput;
 SDL_Rect editorSelect;
 DrawRect* menurect;
 
+#pragma endregion
+
 //todo
-//bullett hit effect -- [Done] - enemies flicker when hit particle effects may still be nessecary
+//bullett hit effect -- [Finished] - enemies flicker when hit particle effects may still be nessecary
 //enemies
 //-flying
-//-mines -- [Done] - Explode and blast affect other mines and player
-//-spikes -- [Done] - spikes and new map improvements as well as load area
-//-turrets -- [Done] - Hits player, no sight check
-//take damage -- [Done] - use loop in main game to get around refences
+//-mines -- [Finished] - Explode and blast affect other mines and player
+//-spikes -- [Finished] - spikes and new map improvements as well as load area
+//-turrets -- [Finished] - Hits player, no sight check
+//take damage -- [Finished] - use loop in main game to get around refences
 //sprites
 //-enemy
 //-weapons
 //-powerups
-//-hud -- [Progress] - health bar and text
-//-menu -- [Progress] - uses one image with 3 buttin sprites
+//-hud -- [Finished] - health bar and text
+//-menu -- [Finished] - uses one image with 3 buttin sprites
 //-level blocks
 //-particles
 //levels
@@ -230,9 +238,9 @@ DrawRect* menurect;
 //text -- [Finished] text textures can now be created using the TextCreator class - may need work for different font sizes as only 38p is initialised
 //Enemy shooting
 //hold to jump higher -- [Finished] - timer allows you to jump at different heights
-//Menu class -- [Progress] - can create custom menus
+//Menu class -- [Finished] - can create custom menus
 //load level -- [Progress] - need to figure out textures
-//Level editor -- [Progress] - added saving, need testing, exit to main and new level
+//Level editor -- [Finished] - added saving, need testing, exit to main and new level
 
 //bugs
 //left jump + space dont work together as well as being clunky -- [Fixed] - need to use wasd and space to prevent key conflict unique to laptop
@@ -256,7 +264,7 @@ DrawRect* menurect;
 //texture leaks? no evidence so far but should happen -- [Fixed] - was actually not deleting mine blasts which out lasted the thread
 //reseting the player pos doesnt update the camera -- [Fixed] - the camera now updates to the edges if your at the edge
 //reseting the level doesnt reset the players health -- [Fixed] - just set it in the set pos function N.B. dont use setpos except for levels
-//tiles and enemies dont show on maps with different rows and cols -- [progress] - narrowed it down to the load level
+//tiles and enemies dont show on maps with different rows and cols -- [Fixed] - swapped some I and J values
 
 int main( int argc, char* args[] )
 {
@@ -295,7 +303,7 @@ int main( int argc, char* args[] )
 			//get deltatime
 			DeltaTime = (SDL_GetTicks() - PrevTicks)/slowTime;
 			PrevTicks = SDL_GetTicks();
-			SDL_SetRenderDrawColor( renderer, 0x00, 0xFF, 0xFF, 0xFF );
+			SDL_SetRenderDrawColor( renderer, 0xFF, 0xFF, 0xFF, 0xFF );
 			SDL_RenderClear( renderer );
 			SDL_SetRenderDrawColor( renderer, 0xFF, 0xFF, 0xFF, 0x00 );
 			//timer update
@@ -358,6 +366,7 @@ int main( int argc, char* args[] )
 
 void Initialise()
 {
+	particle = new Particle();
 	//load the tile textures
 	tile1 = loader.loadTexturePNG("tiles/footile.png");
 	tile2 = loader.loadTexturePNG("tiles/dirtgrass.png");
@@ -509,6 +518,8 @@ void Update()
 	}
 	if(state == Game)
 	{
+		particle->Update();
+		particle->Create(100,100,(rand()%10)-5,(rand()%10)-5,200);
 		player->Update(map1);
 		hud->Update(player);
 		weapon->Update(*player,map1);
@@ -743,7 +754,8 @@ void Draw()
 		Main->Draw();
 	}
 	if(state == Game || state == Pause)
-	{		
+	{
+		particle->Draw();
 		player->Draw();
 		weapon->Draw();
 		DrawEnemyBull();
