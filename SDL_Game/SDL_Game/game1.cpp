@@ -241,6 +241,7 @@ DrawRect* menurect;
 //Menu class -- [Finished] - can create custom menus
 //load level -- [Progress] - need to figure out textures
 //Level editor -- [Finished] - added saving, need testing, exit to main and new level
+//Scrolling background
 
 //bugs
 //left jump + space dont work together as well as being clunky -- [Fixed] - need to use wasd and space to prevent key conflict unique to laptop
@@ -296,7 +297,7 @@ int main( int argc, char* args[] )
 			//get framrate
 			if(SDL_GetTicks() - start > 1000)
 			{
-				//printf("fps: %d\n", counted);
+				printf("fps: %d\n", counted);
 				counted = 0;
 				start = SDL_GetTicks();
 			}
