@@ -45,7 +45,7 @@ public:
 		dir = true;
 		flip = SDL_FLIP_NONE;
 	}
-	void Update(Player &player, Map *map)
+	void Update(Player &player, Map *map,Particle *p)
 	{
 		if(player.hit)
 		{
@@ -94,10 +94,10 @@ public:
 					timer1.Start();
 					if(flip == SDL_FLIP_HORIZONTAL)
 					{
-						*(bulletX+i) = player.getX();
+						*(bulletX+i) = player.getX()+10;
 					}
 					else
-						*(bulletX+i) = player.getX()+32;
+						*(bulletX+i) = player.getX()+22;
 					*(bulletY+i) = player.getY()+20;
 					if(dir)
 						*(velX+i) = 0.7;
@@ -121,6 +121,8 @@ public:
 			}
 			if(1<<map->GetValue(*(bulletX+i)/40,*(bulletY+i)/40) & group1 || 1<<map->GetValue(*(bulletX+i)/40,(*(bulletY+i)+10)/40) == group1)
 			{
+				p->Create(bulletX[i]-*(velX+i)*DeltaTime,bulletY[i],-*(velX+i)/2 + (float)((float)(rand()%10)-5)/20.f,(float)((float)(rand()%10)-5)/10.f,300);
+				p->Create(bulletX[i]-*(velX+i)*DeltaTime,bulletY[i],-*(velX+i)/2 + (float)((float)(rand()%10)-5)/20.f,(float)((float)(rand()%10)-5)/10.f,300);
 				*(bulletX+i) = -1;
 			}
 		}
@@ -135,6 +137,10 @@ public:
 					int res = (*it)->hit(bulletX[i],bulletY[i],5,1);
 					if(res > 0)
 					{
+						for(int ii = 0; ii<2; ii++)
+						{
+							p->Create(bulletX[i],bulletY[i],*(velX+i)/2 + (float)((float)(rand()%10)-5)/20.f,(float)((float)(rand()%10)-5)/10.f,300);
+						}
 						bulletX[i] = -1;
 
 					}

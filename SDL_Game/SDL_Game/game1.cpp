@@ -98,12 +98,11 @@ Camera camera;
 TextCont TextCreator;
 #include "DrawRect.h"
 #include "TextInput.h"
-#include "Particle.h"
 
-Particle *particle;
 
 //classes
 #include "Map.h"
+#include "Particle.h"
 #include "Initialisation.h"
 #include "IOcontrol.h"
 #include "ImgLoader.h"
@@ -119,6 +118,7 @@ vector<Blast*> Blasts;
 #include "Turret_gun.h"
 #include "Turret.h"
 
+Particle *particle;
 //menu
 #include "MenuContain.h"
 //hud
@@ -209,7 +209,7 @@ DrawRect* menurect;
 #pragma endregion
 
 //todo
-//bullett hit effect -- [Finished] - enemies flicker when hit particle effects may still be nessecary
+//bullett hit effect -- [Finished] - enemies flicker when hit and particles are spawned
 //enemies
 //-flying
 //-mines -- [Finished] - Explode and blast affect other mines and player
@@ -231,16 +231,17 @@ DrawRect* menurect;
 //-jumping
 //-taking damage
 //-idling
-//hud
+//hud -- [Progress] - health bar at top of screen, need weapons
 //save?
 //power ups
 //story -- [Progress] - few levels planed, synopsis and intro
-//text -- [Finished] text textures can now be created using the TextCreator class - may need work for different font sizes as only 38p is initialised
-//Enemy shooting
+//text -- [Finished] - text textures can now be created using the TextCreator class - may need work for different font sizes as only 38p is initialised
+//Enemy shooting -- [Finished] - enemy turrets shoot
 //hold to jump higher -- [Finished] - timer allows you to jump at different heights
 //Menu class -- [Finished] - can create custom menus
 //load level -- [Progress] - need to figure out textures
-//Level editor -- [Finished] - added saving, need testing, exit to main and new level
+//Level editor -- [Finished] - create, load, test and save levels
+//particle system -- [Finished] - particles can be spawned and react with the map
 //Scrolling background
 
 //bugs
@@ -252,7 +253,7 @@ DrawRect* menurect;
 //multiple bullets at a time -- [Fixed] - lowering the frame rate seemed to fix this
 //issue causing left and right corrections to be done before up and down causing stutter then landing -- [Fixed] - check behind when landing in motion
 //wall jumping glitch -- [Fixed] - move first then check for collisions and correct
-//memory leaks -- [Fixed] - remeber to delete objects migh need improving for ease vectors work well
+//memory leaks -- [Fixed] - remeber to delete objects might need improving for ease vectors work well
 //dont render off screen tiles or enemies -- [Fixed] - not worth time for enemies, but tiles done
 //anti-ailiasing -- [Fixed] - game has a type of pixel sampling, requires larger textures to be accurate
 //all enemies blink when 1 is shot -- [Fixed] - changes the texture and then reverts, may need to create 2 textures if speed gets too low
@@ -519,11 +520,10 @@ void Update()
 	}
 	if(state == Game)
 	{
-		particle->Update();
-		particle->Create(100,100,(rand()%10)-5,(rand()%10)-5,200);
+		particle->Update(map1);
 		player->Update(map1);
 		hud->Update(player);
-		weapon->Update(*player,map1);
+		weapon->Update(*player,map1,particle);
 		for(vector<Enemy*>::iterator it = Enemies.begin(); it != Enemies.end();)
 		{
 			bool isdel = false;
