@@ -62,8 +62,8 @@ public:
 	void Draw()
 	{
 		SDL_Rect rect;
-		rect.h = 10;
-		rect.w = 10;
+		rect.h = 5;
+		rect.w = 5;
 		SDL_SetRenderDrawColor( renderer, 0xFF, 0x00, 0x00, 0x0F );
 		for(int i = 0; i < size; i++)
 		{

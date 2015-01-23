@@ -267,6 +267,7 @@ DrawRect* menurect;
 //reseting the player pos doesnt update the camera -- [Fixed] - the camera now updates to the edges if your at the edge
 //reseting the level doesnt reset the players health -- [Fixed] - just set it in the set pos function N.B. dont use setpos except for levels
 //tiles and enemies dont show on maps with different rows and cols -- [Fixed] - swapped some I and J values
+//map moves by 1 pixel when moving from the top of the screen to the bottom
 
 int main( int argc, char* args[] )
 {
@@ -804,7 +805,7 @@ void UpdateEnemyBull()
 			{
 				*(posx+i) = -1;
 			}
-			if(map1->GetValue(*(posx+i)/40,*(posy+i)/40) == 1 || map1->GetValue(*(posx+i)/40,(*(posy+i)+10)/40) == 1)
+			if(1<<map1->GetValue(*(posx+i)/40,*(posy+i)/40) & group1 || 1<<map1->GetValue(*(posx+i)/40,(*(posy+i)+10)/40) & group1)
 			{
 				*(posx+i) = -1;
 			}
