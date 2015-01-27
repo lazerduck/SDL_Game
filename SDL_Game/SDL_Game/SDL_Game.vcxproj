@@ -37,10 +37,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\skyli_000\Documents\GitHub\SDL_Game\vslib\SDL-2.0\include;C:\Users\skyli_000\Documents\GitHub\SDL_Game\vslib\SDL2_ttf-2.0.12\include;C:\Users\skyli_000\Documents\GitHub\SDL_Game\vslib\SDL2_image-2.0.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\skyli_000\Desktop\SDL_Game-master\vslib\SDL-2.0\include;C:\Users\skyli_000\Desktop\SDL_Game-master\vslib\SDL2_ttf-2.0.12\include;C:\Users\skyli_000\Desktop\SDL_Game-master\vslib\SDL2_image-2.0.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>C:\Users\skyli_000\Documents\GitHub\SDL_Game\vslib\SDL2_ttf-2.0.12\lib\x86;C:\Users\skyli_000\Documents\GitHub\SDL_Game\vslib\SDL2_image-2.0.0\lib\x86;C:\Users\skyli_000\Documents\GitHub\SDL_Game\vslib\SDL-2.0\lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\skyli_000\Desktop\SDL_Game-master\vslib\SDL2_ttf-2.0.12\lib\x86;C:\Users\skyli_000\Desktop\SDL_Game-master\vslib\SDL2_image-2.0.0\lib\x86;C:\Users\skyli_000\Desktop\SDL_Game-master\vslib\SDL-2.0\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -70,6 +70,8 @@
     <ClCompile Include="game1.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Background.h" />
+    <ClInclude Include="birds.h" />
     <ClInclude Include="Blast.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DrawRect.h" />
@@ -86,7 +88,7 @@
     <ClInclude Include="Mine.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="Sad_onion.h" />
+    <ClInclude Include="stdEnemy.h" />
     <ClInclude Include="TextCont.h" />
     <ClInclude Include="TextInput.h" />
     <ClInclude Include="Turret.h" />

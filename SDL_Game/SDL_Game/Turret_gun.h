@@ -37,8 +37,8 @@ public:
 	void update(int centX, int centY, Player* player)
 	{
 		shoot_timer.Update(DeltaTime);
-		dst.x = centX +22;
-		dst.y = centY - 5;
+		dst.x = centX +20;
+		dst.y = centY - 6;
 		centx = centX;
 		centy = centY;
 		cent.x = 20;

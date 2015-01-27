@@ -121,8 +121,11 @@ public:
 			}
 			if(1<<map->GetValue(*(bulletX+i)/40,*(bulletY+i)/40) & group1 || 1<<map->GetValue(*(bulletX+i)/40,(*(bulletY+i)+10)/40) == group1)
 			{
-				p->Create(bulletX[i]-*(velX+i)*DeltaTime,bulletY[i],-*(velX+i)/2 + (float)((float)(rand()%10)-5)/20.f,(float)((float)(rand()%10)-5)/10.f,300);
-				p->Create(bulletX[i]-*(velX+i)*DeltaTime,bulletY[i],-*(velX+i)/2 + (float)((float)(rand()%10)-5)/20.f,(float)((float)(rand()%10)-5)/10.f,300);
+
+				for(int ii = 0; ii<2; ii++)
+				{
+					p->Create(bulletX[i]-*(velX+i)*DeltaTime,bulletY[i],-*(velX+i)/2 + (float)((float)(rand()%10)-5)/20.f,(float)((float)(rand()%10)-5)/10.f,1000);
+				}
 				*(bulletX+i) = -1;
 			}
 		}
@@ -139,7 +142,7 @@ public:
 					{
 						for(int ii = 0; ii<2; ii++)
 						{
-							p->Create(bulletX[i],bulletY[i],*(velX+i)/2 + (float)((float)(rand()%10)-5)/20.f,(float)((float)(rand()%10)-5)/10.f,300);
+							p->Create(bulletX[i],bulletY[i],*(velX+i)/2 + (float)((float)(rand()%10)-5)/20.f,(float)((float)(rand()%10)-5)/10.f,1000);
 						}
 						bulletX[i] = -1;
 

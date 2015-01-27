@@ -42,7 +42,7 @@ int MIDY = 360;
 enum State {Splash,MainMenu,Game,GameOver,Pause,LevelEdit,LevelEditPlay};
 State state;
 
-enum Tiles {Empty_T, Ground_T, Grass_T, Glass_T, Spike_T, Enemy_T, Mine_T, Turret_T};
+enum Tiles {Empty_T, Ground_T, Grass_T, Glass_T, Spike_T, Enemy_T, Mine_T, Turret_T, Bird_T};
 Tiles tile;
 
 
@@ -89,11 +89,13 @@ int OldMouse = 0;
 int playerStartX = 100;
 int playerStartY = 100;
 //keys
-bool Up,Down,Left,Right,Space,Esc;
+bool Up,Down,Left,Right,Space,Esc,Ctrl;
 bool Escprev;
 //camera
 #include "Camera.h"
 Camera camera;
+#include "Background.h"
+Background *background;
 #include "TextCont.h"
 TextCont TextCreator;
 #include "DrawRect.h"
@@ -113,10 +115,11 @@ TextCont TextCreator;
 vector<Blast*> Blasts;
 //enemies
 #include "Enemy.h"
-#include "Sad_onion.h"
+#include "stdEnemy.h"
 #include "Mine.h"
 #include "Turret_gun.h"
 #include "Turret.h"
+#include "birds.h"
 
 Particle *particle;
 //menu
@@ -160,6 +163,7 @@ SDL_Texture* tile4;
 SDL_Texture* tile5;
 SDL_Texture* tile6;
 SDL_Texture* tile7;
+SDL_Texture* tile8;
 SDL_Texture* playerSprite;
 
 //variables splash
@@ -186,14 +190,11 @@ Player* player;
 MenuContain* Main;
 MenuContain* PauseMenu;
 MenuContain* EditMenu;
+MenuContain* GameOverMenu;
 
 //main menu images
-SDL_Texture* Foreground;
-SDL_Texture* Background;
 SDL_Texture* TextTest;
 
-SDL_Rect BackRect;
-SDL_Rect ForeRect;
 SDL_Rect TextRect;
 
 SDL_Color col;
@@ -306,7 +307,7 @@ int main( int argc, char* args[] )
 			//get deltatime
 			DeltaTime = (SDL_GetTicks() - PrevTicks)/slowTime;
 			PrevTicks = SDL_GetTicks();
-			SDL_SetRenderDrawColor( renderer, 0xFF, 0xFF, 0xFF, 0xFF );
+			SDL_SetRenderDrawColor( renderer, 0xCC, 0xCC, 0xCC, 0xCC );
 			SDL_RenderClear( renderer );
 			SDL_SetRenderDrawColor( renderer, 0xFF, 0xFF, 0xFF, 0x00 );
 			//timer update
@@ -344,6 +345,7 @@ int main( int argc, char* args[] )
 	SDL_DestroyTexture(tile5);
 	SDL_DestroyTexture(tile6);
 	SDL_DestroyTexture(tile7);
+	SDL_DestroyTexture(tile8);
 	delete menurect;
 	//delete timers
 	for(vector<gTimer*>::iterator it = Timers.begin(); it != Timers.end(); ++it)
@@ -369,16 +371,17 @@ int main( int argc, char* args[] )
 
 void Initialise()
 {
-	particle = new Particle();
+	particle = new Particle(loader.loadTexturePNG("sprites/spark.png"));
 	//load the tile textures
 	tile1 = loader.loadTexturePNG("tiles/footile.png");
 	tile2 = loader.loadTexturePNG("tiles/dirtgrass.png");
 	tile3 = loader.loadTexturePNG("tiles/glasstile.png");
 	tile4 = loader.loadTexturePNG("tiles/Spikes.png");
-	tile5 = loader.loadTexturePNG("sprites/sad_onion.png");
+	tile5 = loader.loadTexturePNG("sprites/stdEnemy.png");
 	tile6 = loader.loadTexturePNG("sprites/Mine.png");
 	tile7 = loader.loadTexturePNG("Sprites/turret_base.png");
-	playerSprite = loader.loadTexturePNG("sprites/ashensStill.png");
+	tile8 = loader.loadTexturePNG("Sprites/bird.png");
+	playerSprite = loader.loadTexturePNG("sprites/playerStill.png");
 	tile = Empty_T;
 
 	T1 = new gTimer;
@@ -399,7 +402,7 @@ void Initialise()
 	tiles.push_back(tile3);
 	tiles.push_back(tile4);
 
-	player = new Player(80,800,loader.loadTexturePNG("sprites/ashen1.png"));
+	player = new Player(80,800,loader.loadTexturePNG("sprites/player.png"));
 	hud = new Hud(loader.loadTexturePNG("sprites/HealthBlock.png"));
 	weapon = new Weapon(loader.loadTexturePNG("sprites/pistol.png"),loader.loadTexturePNG("sprites/bullet.png"),*player);
 
@@ -413,6 +416,7 @@ void Initialise()
 	Main = new MenuContain();
 	PauseMenu = new MenuContain();
 	EditMenu = new MenuContain();
+	GameOverMenu = new MenuContain();
 	int w,h;
 	SDL_Texture* newgame = loader.loadTexturePNG("sprites/menu/buttons/NewGame_btn.png");
 	SDL_Texture* Exit = loader.loadTexturePNG("sprites/menu/buttons/Exit_btn.png");
@@ -437,18 +441,9 @@ void Initialise()
 	EditMenu->addButton(newbut,(SCREEN_WIDTH+200)/(2*scalex),200,w,h,"new");
 	EditMenu->addButton(exitbut,(SCREEN_WIDTH+200)/(2*scalex),300,w,h,"exit");
 
+	GameOverMenu->addButton(newgame,(SCREEN_WIDTH-w)/(3*scalex),70,w,h,"newgame");
+	GameOverMenu->addButton(Exit,(SCREEN_WIDTH-w)/(3*scalex),230,w,h,"Exit");
 	//set up the menu pretty stuff
-	Background = loader.loadTexturePNG("sprites/menu/sofa_720.png");
-	Foreground = loader.loadTexturePNG("sprites/menu/camera.png");
-	BackRect.x = 0;
-	BackRect.y = 0;
-	BackRect.w = SCREEN_WIDTH/scalex;
-	BackRect.h = SCREEN_HEIGHT/scaley;
-	ForeRect.x = 350;
-	ForeRect.y = 200;
-	SDL_QueryTexture(Foreground,NULL,NULL,&ForeRect.w,&ForeRect.h);
-	ForeRect.w /= 1.3*scalex;
-	ForeRect.h /= 1.3*scaley;
 	SDL_Color col;
 	col.a = 0x00;
 	col.r = 0x00;
@@ -468,6 +463,7 @@ void Initialise()
 
 	editorGUI = new Editor_gui(loader.loadTexturePNG("sprites/selector.png"),loader.loadTexturePNG("sprites/menu/buttons/test_btn.png"),loader.loadTexturePNG("sprites/menu/buttons/save_btn.png"),exitbut);
 
+	background = new Background(loader.loadTexturePNG("sprites/bg.png"));
 }
 
 bool checkadd(string name)
@@ -521,6 +517,16 @@ void Update()
 	}
 	if(state == Game)
 	{
+		//slow time
+		if(Ctrl)
+		{
+			slowTime = 2;
+		}
+		else
+		{
+			slowTime = 1;
+		}
+		background->Update();
 		particle->Update(map1);
 		player->Update(map1);
 		hud->Update(player);
@@ -575,6 +581,8 @@ void Update()
 			{
 				state = GameOver;
 				slowTime = 1;
+				T2->Stop();
+				player->dead = false;
 			}
 		}
 		UpdateEnemyBull();
@@ -585,6 +593,31 @@ void Update()
 
 		}
 		Escprev = Esc;
+	}
+	if(state == GameOver)
+	{
+		if(GameOverMenu->isPressed("Exit"))
+		{
+			state = MainMenu;
+			if(editorGUI->StartTest())
+			{
+				loadLevelEditor(editorGUI->GetAddress());
+				state = LevelEditPlay;
+				editorGUI->EndTest();
+			}
+		}
+		if(GameOverMenu->isPressed("newgame"))
+		{
+			state = Game;
+			if(editorGUI->StartTest())
+			{
+				loadLevel(editorGUI->GetAddress());
+			}
+			else
+			{
+				loadLevel("maps/map1");
+			}
+		}
 	}
 	if(state == Pause)
 	{
@@ -661,15 +694,16 @@ void Update()
 			state = LevelEditPlay;
 			editorGUI->setMapAddress(bpath+'\\'+Tinput->text);
 		}
+		if(EditMenu->isPressed("exit"))
+		{
+			state = MainMenu;
+		}
 	}
 	else
 	{
 		SDL_StopTextInput();
 	}
-	if(EditMenu->isPressed("exit"))
-	{
-		state = MainMenu;
-	}
+
 	if(state == LevelEditPlay)
 	{
 		float speed = 10;
@@ -714,31 +748,31 @@ void Update()
 		//tile rect, tile selector
 		editorGUI->Update();
 		if(!editorGUI->setPlayer)
-		if(MouseState == SDL_BUTTON(1))
-		{
-			if(mouseY > 50)
+			if(MouseState == SDL_BUTTON(1))
 			{
-				int resy = ((mouseY/scaley)+camera.y)/40;
-				int resx = (((mouseX)/scalex)+camera.x)/40;
-				if(tile != 1 && tile != 2)
+				if(mouseY > 50)
 				{
-					if(resy != 0 && resx != 0 && resx != map1->getCols()-1&&resy != map1->getRows()-1)
+					int resy = ((mouseY/scaley)+camera.y)/40;
+					int resx = (((mouseX)/scalex)+camera.x)/40;
+					if(tile != 1 && tile != 2)
+					{
+						if(resy != 0 && resx != 0 && resx != map1->getCols()-1&&resy != map1->getRows()-1)
+						{
+							map1->setValue(resy,resx,tile);
+						}
+					}
+					else
 					{
 						map1->setValue(resy,resx,tile);
 					}
 				}
-				else
-				{
-					map1->setValue(resy,resx,tile);
-				}
 			}
-		}
-		
-		if(editorGUI->StartTest())
-		{
-			loadLevel(editorGUI->GetAddress());
-			state = Game;
-		}
+
+			if(editorGUI->StartTest())
+			{
+				loadLevel(editorGUI->GetAddress());
+				state = Game;
+			}
 	}
 }
 
@@ -750,13 +784,12 @@ void Draw()
 	}
 	if(state == MainMenu)
 	{
-		SDL_RenderCopy(renderer, Background,NULL,&BackRect);
-		SDL_RenderCopy(renderer, Foreground,NULL,&ForeRect);
 		SDL_RenderCopy(renderer, TextTest,NULL,&TextRect);
 		Main->Draw();
 	}
 	if(state == Game || state == Pause)
 	{
+		//background->Draw();
 		particle->Draw();
 		player->Draw();
 		weapon->Draw();
@@ -771,6 +804,10 @@ void Draw()
 			(*it)->Draw();
 		}
 		hud->Draw();
+	}
+	if(state == GameOver)
+	{
+		GameOverMenu->Draw();
 	}
 	if(state == Pause)
 	{
@@ -854,11 +891,12 @@ void loadLevel(string mapadd)
 	tiles.push_back(tile4);
 	delete map1;
 	map1= loader.initMap(map1,mapadd,tiles);
-	SDL_Texture* enemy1 = loader.loadTexturePNG("sprites/sad_onion.png");
+	SDL_Texture* enemy1 = loader.loadTexturePNG("sprites/stdEnemy.png");
 	SDL_Texture* Minetex = loader.loadTexturePNG("sprites/Mine.png");
 	SDL_Texture* Boom = loader.loadTexturePNG("Sprites/mineblast.png");
 	SDL_Texture* turret_tex = loader.loadTexturePNG("Sprites/turret_base.png");
 	SDL_Texture* turret_gun = loader.loadTexturePNG("Sprites/turret_gun.png");
+	SDL_Texture* bird_tex = loader.loadTexturePNG("Sprites/bird.png");
 	for(int i = 0;i<map1->getCols();i++)
 	{
 		for(int j = 0; j<map1->getRows();j++)
@@ -866,7 +904,7 @@ void loadLevel(string mapadd)
 			if(map1->GetValue(i,j) == Enemy_T)
 			{
 				map1->setValue(j,i,0);
-				Sad_onion *enemyinst = new Sad_onion(enemy1,i,j);
+				stdEnemy *enemyinst = new stdEnemy(enemy1,i,j);
 				Enemies.push_back(enemyinst);
 			}
 			if(map1->GetValue(i,j) == Mine_T)
@@ -880,6 +918,12 @@ void loadLevel(string mapadd)
 				map1->setValue(j,i,0);
 				Turret *turinst = new Turret(turret_tex,turret_gun,i,j);
 				Enemies.push_back(turinst);
+			}
+			if(map1->GetValue(i,j) == Bird_T)
+			{
+				map1->setValue(j,i,0);
+				birds *bird = new birds(i,j,bird_tex);
+				Enemies.push_back(bird);
 			}
 		}
 	}
@@ -908,6 +952,7 @@ void loadLevelEditor(string mapadd)
 	tiles.push_back(tile5);
 	tiles.push_back(tile6);
 	tiles.push_back(tile7);
+	tiles.push_back(tile8);
 	delete map1;
 	map1= loader.initMap(map1,mapadd,tiles);
 }

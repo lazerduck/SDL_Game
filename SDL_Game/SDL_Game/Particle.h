@@ -9,10 +9,12 @@ private:
 	float *life;
 
 	int size;
+	SDL_Texture *spark;
 public:
 
-	Particle(void)
+	Particle(SDL_Texture *tex)
 	{
+		spark = tex;
 		size = 1000;
 		xArr = new float[size];
 		yArr = new float[size];
@@ -64,14 +66,13 @@ public:
 		SDL_Rect rect;
 		rect.h = 5;
 		rect.w = 5;
-		SDL_SetRenderDrawColor( renderer, 0xFF, 0x00, 0x00, 0x0F );
 		for(int i = 0; i < size; i++)
 		{
 			if(xArr[i]!=-1)
 			{
 				rect.x = (int)xArr[i] - camera.x;
 				rect.y = (int)yArr[i] - camera.y;
-				SDL_RenderFillRect(renderer,&rect);
+				SDL_RenderCopy(renderer, spark,NULL,&rect);
 			}
 		}
 	}

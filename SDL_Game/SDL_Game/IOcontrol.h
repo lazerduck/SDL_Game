@@ -60,6 +60,10 @@ public:
 				{
 					Esc = true;
 				}
+				if(e->key.keysym.sym == SDLK_LCTRL)
+				{
+					Ctrl = true;
+				}
 
 				//Handle backspace
 				if( e->key.keysym.sym == SDLK_BACKSPACE && input.length() > 0 )
@@ -109,6 +113,10 @@ public:
 				{
 					tile = Turret_T;
 				}
+				if(e->key.keysym.sym == SDLK_8)
+				{
+					tile = Bird_T;
+				}
 				if(e->key.keysym.sym == SDLK_0)
 				{
 					tile = Empty_T;
@@ -142,6 +150,10 @@ public:
 				if(e->key.keysym.sym == SDLK_ESCAPE)
 				{
 					Esc = false;
+				}
+				if(e->key.keysym.sym == SDLK_LCTRL)
+				{
+					Ctrl = false;
 				}
 			}
 			if( e->type == SDL_KEYDOWN )

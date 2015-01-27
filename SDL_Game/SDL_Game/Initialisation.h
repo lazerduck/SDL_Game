@@ -19,7 +19,7 @@ public:
 		{
 			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 			//Create window
-			window = SDL_CreateWindow( "ASHENS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+			window = SDL_CreateWindow( "Global Game jam 2015", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 			if( window == NULL )
 			{
 				printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
