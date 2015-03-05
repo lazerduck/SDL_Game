@@ -311,7 +311,7 @@ int main( int argc, char* args[] )
 			SDL_RenderClear( renderer );
 			SDL_SetRenderDrawColor( renderer, 0xFF, 0xFF, 0xFF, 0x00 );
 			//timer update
-			for(vector<gTimer*>::iterator it = Timers.begin(); it!= Timers.end(); ++it)
+			for(auto it = Timers.begin(); it!= Timers.end(); ++it)
 			{
 				(*it)->Update(DeltaTime);
 			}

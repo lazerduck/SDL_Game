@@ -98,6 +98,11 @@ public:
 		if(prev == false &&active == true)
 		{
 			input = text;
+			rect->setColor(0xF0,0xF0,0xF0);
+		}
+		else
+		{
+			rect->setColor(0xFF,0xFF,0xFF);
 		}
 		if(active)
 		{
